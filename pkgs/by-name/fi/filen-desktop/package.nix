@@ -1,41 +1,22 @@
 {
   lib,
   stdenv,
-  fetchurl,
-  appimageTools,
-  makeDesktopItem,
+  buildNpmPackage,
+  fetchFromGitHub,
 }:
-let
+buildNpmPackage rec {
   pname = "filen-desktop";
   version = "3.0.41";
+  makeCacheWritable = true;
 
-  arch = builtins.head (builtins.split "-" stdenv.hostPlatform.system);
-
-  src = fetchurl {
-    url = "https://github.com/FilenCloudDienste/filen-desktop/releases/download/v${version}/Filen_linux_${arch}.AppImage";
-    sha256 = "sha256-Nao5By8Z8lMbRcp2Mgw+xaiiFzUxCm6S3SAE5FfDZpk=";
+  src = fetchFromGitHub {
+    owner = "FilenCloudDienste";
+    repo = "filen-desktop";
+    rev = "v${version}";
+    sha256 = "sha256-HpyASSpjRgBTkV7L5bfi65rO+MnrSP7VdeuL/VXBlSo=";
   };
 
-  desktopItem = makeDesktopItem {
-    name = "filen-desktop";
-    desktopName = "Filen Desktop";
-    comment = "Encrypted Cloud Storage";
-    icon = "filen-desktop";
-    exec = "filen-desktop %u";
-    categories = [ "Office" ];
-  };
-
-  appimageContents = appimageTools.extract { inherit pname version src; };
-in
-appimageTools.wrapType2 rec {
-  inherit pname version src;
-
-  extraInstallCommands = ''
-    mkdir -p $out/share
-    cp -rt $out/share ${desktopItem}/share/applications ${appimageContents}/usr/share/icons
-    chmod -R +w $out/share
-    find $out/share/icons -type f -iname "*.png" -execdir mv {} "$pname.png" \;
-  '';
+  npmDepsHash = "sha256-TmKNZpZBD41OFwD9whCWGztPno91ltDZ/+5OX9AJc5Y=";
 
   meta = with lib; {
     homepage = "https://filen.io/products/desktop";
