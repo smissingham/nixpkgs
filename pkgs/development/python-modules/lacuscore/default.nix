@@ -1,6 +1,5 @@
 {
   lib,
-  async-timeout,
   buildPythonPackage,
   defang,
   dnspython,
@@ -9,7 +8,6 @@
   playwrightcapture,
   poetry-core,
   pydantic,
-  pythonOlder,
   redis,
   requests,
   ua-parser,
@@ -17,14 +15,14 @@
 
 buildPythonPackage rec {
   pname = "lacuscore";
-  version = "1.21.1";
+  version = "1.24.7";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ail-project";
     repo = "LacusCore";
     tag = "v${version}";
-    hash = "sha256-I6Qh7AzcTYDxNmvgTNVVPSenLfAbdLawdiN8JrrF25s=";
+    hash = "sha256-3LI36/+Ib67IyG69ww3A295Mqjzi+t7RIT3DBBqLJok=";
   };
 
   pythonRelaxDeps = [
@@ -49,8 +47,7 @@ buildPythonPackage rec {
   ]
   ++ playwrightcapture.optional-dependencies.recaptcha
   ++ redis.optional-dependencies.hiredis
-  ++ ua-parser.optional-dependencies.regex
-  ++ lib.optionals (pythonOlder "3.11") [ async-timeout ];
+  ++ ua-parser.optional-dependencies.regex;
 
   # Module has no tests
   doCheck = false;

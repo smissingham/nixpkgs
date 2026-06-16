@@ -8,14 +8,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "hdfury";
-  version = "1.4.1";
+  version = "1.6.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "glenndehaan";
     repo = "python-hdfury";
     tag = finalAttrs.version;
-    hash = "sha256-cL6KE3qkOgG61ewgIInbaIw6ygb5jWVrjl8ooFrCv+k=";
+    hash = "sha256-ndJpxFebSsfXQ1aUe20Ajbgks3gA3KXo8kY5FaJ/BW0=";
   };
 
   build-system = [ hatchling ];

@@ -8,14 +8,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "growattserver";
-  version = "1.8.0";
+  version = "2.1.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "indykoning";
     repo = "PyPi_GrowattServer";
     tag = finalAttrs.version;
-    hash = "sha256-2Jgz/wN0k6ni+4PbQwfDg3uMvYxv5N3BVgdARHqQ0Yc=";
+    hash = "sha256-MRxNPyvIlMafJYhjMNirb0cqppJYr9MUR7FxjhqQsyY=";
   };
 
   build-system = [ setuptools ];

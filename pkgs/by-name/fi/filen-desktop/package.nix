@@ -1,14 +1,16 @@
 {
   lib,
-  pkgs,
   stdenv,
   buildNpmPackage,
   fetchFromGitHub,
   makeDesktopItem,
   copyDesktopItems,
-  imagemagick,
   makeWrapper,
   electron,
+  pkg-config,
+  pixman,
+  cairo,
+  pango,
 }:
 let
   packageName = "filen-desktop";
@@ -50,22 +52,23 @@ buildNpmPackage {
   npmDepsHash = "sha256-+Ul2z6faZvAeCHq35janVTUNoqTQ5JNDeLbCV220nFU=";
 
   nativeBuildInputs = [
-    pkgs.pkg-config
+    pkg-config
     makeWrapper
   ]
   ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
     copyDesktopItems
-    imagemagick
   ];
 
   buildInputs = [
-    pkgs.pixman
-    pkgs.cairo
-    pkgs.pango
+    pixman
+    cairo
+    pango
   ];
 
-  env.ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
-  env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+  env = {
+    ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+  };
 
   postPatch = ''
     # Use nixpkgs electron instead of downloading
@@ -126,14 +129,15 @@ buildNpmPackage {
           cp -r prod/*-unpacked/{locales,resources{,.pak}} $out/share/${packageName}
 
           # Create desktop icon
-          mkdir -p $out/share/icons/hicolor/256x256/apps
-          magick assets/icons/app/linux.png -resize 256x256 $out/share/icons/hicolor/256x256/apps/${packageName}.png
+          mkdir -p $out/share/icons/hicolor/128x128/apps
+          cp assets/icons/app/linux.png $out/share/icons/hicolor/128x128/apps/${packageName}.png
 
           # Create launcher with electron
           makeWrapper ${lib.getExe electron} $out/bin/${packageName} \
             --set ELECTRON_IS_DEV 0 \
             --add-flags $out/share/${packageName}/resources/app.asar \
             --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
+            --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ stdenv.cc.cc.lib ]}" \
             --inherit-argv0
         ''
     }

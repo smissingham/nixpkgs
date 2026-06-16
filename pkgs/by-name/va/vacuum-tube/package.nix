@@ -10,16 +10,16 @@
 
 buildNpmPackage rec {
   pname = "vacuum-tube";
-  version = "1.5.4";
+  version = "1.7.2";
 
   src = fetchFromGitHub {
     owner = "shy1132";
     repo = "VacuumTube";
     tag = "v${version}";
-    hash = "sha256-b5OnDoMejnupeK4sWoXQo7vpFFD/y1p4vxMZTMMO25g=";
+    hash = "sha256-WSK0SKgT7CZ+7ibTCpMw6LUVvis7/Iqfyzi8sWclYDM=";
   };
 
-  npmDepsHash = "sha256-NBsLgcYFHnj+hVELTKMreLsrJAu3S+RuhBcOTeIhQew=";
+  npmDepsHash = "sha256-jnWsxMxMTA+tsPSRJIQa/iJWWrLTWlWsVfAz8okRDhk=";
   makeCacheWritable = true;
 
   env = {

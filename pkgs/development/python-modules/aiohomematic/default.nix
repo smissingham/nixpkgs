@@ -4,41 +4,48 @@
   buildPythonPackage,
   fetchFromGitHub,
   freezegun,
+  openccu-data,
   orjson,
+  pydantic,
   pydevccu,
   pytest-asyncio,
   pytest-socket,
+  pytest-xdist,
   pytestCheckHook,
   python-slugify,
+  pythonOlder,
   setuptools,
-  voluptuous,
 }:
 
 buildPythonPackage rec {
   pname = "aiohomematic";
-  version = "2026.1.38";
+  version = "2026.5.11";
   pyproject = true;
+
+  disabled = pythonOlder "3.14";
 
   src = fetchFromGitHub {
     owner = "SukramJ";
     repo = "aiohomematic";
     tag = version;
-    hash = "sha256-2Rf6WRMs/m55/kdq7yEmLkf4ptlOhfyRnvNT4XqelPs=";
+    hash = "sha256-Ua7/sLhL0mbZvJwx+TNfXoP+z+jE2TyCO3DqsFpPe6A=";
   };
 
   build-system = [ setuptools ];
 
   dependencies = [
     aiohttp
+    openccu-data
     orjson
+    pydantic
     python-slugify
-    voluptuous
   ];
 
   nativeCheckInputs = [
     freezegun
     pydevccu
     pytest-asyncio
+    pytest-xdist
     pytest-socket
     pytestCheckHook
   ];

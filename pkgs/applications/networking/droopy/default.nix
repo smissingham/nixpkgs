@@ -1,9 +1,9 @@
 {
-  stdenv,
   lib,
+  stdenv,
   fetchFromGitHub,
-  wrapPython,
   fetchpatch,
+  python3Packages,
 }:
 
 stdenv.mkDerivation {
@@ -28,7 +28,7 @@ stdenv.mkDerivation {
     })
   ];
 
-  nativeBuildInputs = [ wrapPython ];
+  nativeBuildInputs = [ python3Packages.wrapPython ];
 
   installPhase = ''
     install -vD droopy $out/bin/droopy
@@ -40,8 +40,7 @@ stdenv.mkDerivation {
     description = "Mini Web server that let others upload files to your computer";
     homepage = "http://stackp.online.fr/droopy";
     license = lib.licenses.bsd3;
-    maintainers = [ lib.maintainers.Profpatsch ];
+    maintainers = [ ];
     mainProgram = "droopy";
   };
-
 }

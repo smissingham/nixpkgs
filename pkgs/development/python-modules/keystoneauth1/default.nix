@@ -27,12 +27,12 @@
 
 buildPythonPackage rec {
   pname = "keystoneauth1";
-  version = "5.12.0";
+  version = "5.14.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-3RE8Lz3LQY2fdhxzuM1DqW3fqKYStRxXaCI4HznKSug=";
+    hash = "sha256-e5QghNPbJ90oXBMlPN/uELBb4ENtscAeFdx0SQIZen8=";
   };
 
   build-system = [ setuptools ];

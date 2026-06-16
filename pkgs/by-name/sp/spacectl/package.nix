@@ -7,18 +7,18 @@
   buildPackages,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "spacectl";
-  version = "1.17.3";
+  version = "1.21.6";
 
   src = fetchFromGitHub {
     owner = "spacelift-io";
     repo = "spacectl";
-    rev = "v${version}";
-    hash = "sha256-kH5CVmticNZDDW97iMY+kU7m2bP44PgKvGSZzEgPoFw=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-iGXDdTnWepOqhOgRWwdLI5cdVVATCLs0kFKk+yVlxZ0=";
   };
 
-  vendorHash = "sha256-f/09XZiaYNUZzKM0jITFdUmKt8UQy90K4PGhC6ZupCk=";
+  vendorHash = "sha256-NvnsRvLnUJgxhx65nse2er65RRPatZF28rLiRBMnNhY=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -30,15 +30,15 @@ buildGoModule rec {
       installShellCompletion --cmd spacectl \
         --bash <(${emulator} $out/bin/spacectl completion bash) \
         --fish <(${emulator} $out/bin/spacectl completion fish) \
-        --zsh <(${emulator} $out/bin/spacectl completion zsh) \
+        --zsh <(${emulator} $out/bin/spacectl completion zsh)
     '';
 
   meta = {
     homepage = "https://github.com/spacelift-io/spacectl";
     description = "Spacelift client and CLI";
-    changelog = "https://github.com/spacelift-io/spacectl/releases/tag/v${version}";
+    changelog = "https://github.com/spacelift-io/spacectl/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ kashw2 ];
     mainProgram = "spacectl";
   };
-}
+})

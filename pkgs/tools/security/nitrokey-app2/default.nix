@@ -1,13 +1,8 @@
 {
   lib,
   stdenv,
-  buildPythonApplication,
+  python3Packages,
   fetchFromGitHub,
-  poetry-core,
-  fido2,
-  nitrokey,
-  pyside6,
-  usb-monitor,
   qt6,
 }:
 
@@ -20,16 +15,16 @@ let
     ;
 in
 
-buildPythonApplication rec {
+python3Packages.buildPythonApplication rec {
   pname = "nitrokey-app2";
-  version = "2.4.3";
+  version = "2.5.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Nitrokey";
     repo = "nitrokey-app2";
     tag = "v${version}";
-    hash = "sha256-mwcYjkyEP2itwdQ/xAG50uvw6zHfUacAecbDh86GNGA=";
+    hash = "sha256-HkGdu8A8xpZheO+2NcKkTPXZGln28CnhRQzdpwRUlRE=";
   };
 
   nativeBuildInputs = [
@@ -44,11 +39,11 @@ buildPythonApplication rec {
     qtsvg
   ];
 
-  build-system = [
+  build-system = with python3Packages; [
     poetry-core
   ];
 
-  dependencies = [
+  dependencies = with python3Packages; [
     fido2
     nitrokey
     pyside6

@@ -62,11 +62,11 @@ in
 
 stdenv.mkDerivation rec {
   pname = "gnutls";
-  version = "3.8.11";
+  version = "3.8.13";
 
   src = fetchurl {
     url = "mirror://gnupg/gnutls/v${lib.versions.majorMinor version}/gnutls-${version}.tar.xz";
-    hash = "sha256-kb0jxKhuvGFS6BMD0gz2zq65e8j4QmbQ+uxuKfF7qiA=";
+    hash = "sha256-/+2Owb8JwkJtTxSq43feR1O1PlN9aF5gTpmosWypyX4=";
   };
 
   outputs = [
@@ -129,6 +129,10 @@ stdenv.mkDerivation rec {
     ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [
       "--enable-ktls"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isMusl [
+      # https://lists.gnu.org/archive/html/bug-gnulib/2026-05/msg00061.html
+      "gl_cv_func_free_preserves_errno=yes"
     ]
     ++ lib.optionals (stdenv.hostPlatform.isMinGW) [
       "--disable-doc"
@@ -238,5 +242,6 @@ stdenv.mkDerivation rec {
     license = lib.licenses.lgpl21Plus;
     maintainers = with lib.maintainers; [ vcunat ];
     platforms = lib.platforms.all;
+    identifiers.cpeParts = lib.meta.cpeFullVersionWithVendor "gnu" version;
   };
 }

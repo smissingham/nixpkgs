@@ -5,18 +5,18 @@
   nix-update-script,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "pocketbase";
-  version = "0.36.0";
+  version = "0.39.3";
 
   src = fetchFromGitHub {
     owner = "pocketbase";
     repo = "pocketbase";
-    rev = "v${version}";
-    hash = "sha256-sl3OsGV6J1kxCW8ter71ACk7BkPZjImIKdcGJOtoEmg=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-eCOGApbp/PLFpsX1GC2p56t3H+ksjiw5TL3iT7wnPGM=";
   };
 
-  vendorHash = "sha256-2nLjbIqjxFNd/epJfi+3C9HHlKYipv9HbqNKgtgH6H8=";
+  vendorHash = "sha256-ZKDMy+XUjCAvyis8wp9ddjuH+nFHh/A4bl5QZ33wtLE=";
 
   # This is the released subpackage from upstream repo
   subPackages = [ "examples/base" ];
@@ -27,7 +27,7 @@ buildGoModule rec {
   ldflags = [
     "-s"
     "-w"
-    "-X github.com/pocketbase/pocketbase.Version=${version}"
+    "-X github.com/pocketbase/pocketbase.Version=${finalAttrs.version}"
   ];
 
   postInstall = ''
@@ -41,9 +41,8 @@ buildGoModule rec {
     homepage = "https://github.com/pocketbase/pocketbase";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [
-      dit7ya
       thilobillerbeck
     ];
     mainProgram = "pocketbase";
   };
-}
+})

@@ -14,16 +14,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "nerdctl";
-  version = "2.2.1";
+  version = "2.3.1";
 
   src = fetchFromGitHub {
     owner = "containerd";
     repo = "nerdctl";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-KD7wXU3RSWJWLSOd7ZFEAfETezb/5ijWPyxXMjIeX6E=";
+    hash = "sha256-DsMLSHA+q8nsIpzOA84C3hCSGILansSx24l7z2unSj8=";
   };
 
-  vendorHash = "sha256-vq4NpKS8JvsOGK25fksjsqdNS6H/B1VPqTYwqYv2blc=";
+  vendorHash = "sha256-x2u708zdmAHdrEaA/fretPuHKNbDVsiK6u/fZIa+Dhc=";
 
   nativeBuildInputs = [
     makeWrapper
@@ -81,6 +81,7 @@ buildGoModule (finalAttrs: {
     maintainers = with lib.maintainers; [
       developer-guy
       jk
+      miniharinn
     ];
     platforms = lib.platforms.linux;
   };

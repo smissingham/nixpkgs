@@ -9,11 +9,11 @@
 
 callPackage ../nginx/generic.nix args rec {
   pname = "angie";
-  version = "1.11.0";
+  version = "1.11.5";
 
   src = fetchurl {
     url = "https://download.angie.software/files/angie-${version}.tar.gz";
-    hash = "sha256-6ZR8gJZVufdGpyuQxbrcW3Us70rMiHztwGQImVlEVrM=";
+    hash = "sha256-tfKXxt8qdLnQCRp83XR//9LQ4dC+Q2MtphwcdTnbIEM=";
   };
 
   configureFlags = lib.optionals withAcme [

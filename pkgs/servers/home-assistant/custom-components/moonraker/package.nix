@@ -14,13 +14,13 @@
 buildHomeAssistantComponent rec {
   owner = "marcolivierarsenault";
   domain = "moonraker";
-  version = "1.12.2";
+  version = "1.13.3";
 
   src = fetchFromGitHub {
     owner = "marcolivierarsenault";
     repo = "moonraker-home-assistant";
     tag = version;
-    hash = "sha256-EkdkP3NLcw0Zv5qdVrScu8ks3QRoDeVYCCMT6XP2j2I=";
+    hash = "sha256-EVlz2wsI3T815Lct9sfdYneyM0/8RHVbT6XJegtW9vs=";
   };
 
   dependencies = [
@@ -32,7 +32,13 @@ buildHomeAssistantComponent rec {
     pytest-cov-stub
     pytestCheckHook
   ]
-  ++ home-assistant.getPackages "camera" home-assistant.python.pkgs;
+  ++ home-assistant.getPackages "camera" home-assistant.python3Packages;
+
+  disabledTests = [
+    # tests try to open sockets
+    "test_thumbnail_camera_from_img_to_none"
+    "test_bad_connection_config_flow"
+  ];
 
   #skip phases with nothing to do
   dontConfigure = true;

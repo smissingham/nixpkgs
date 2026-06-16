@@ -12,7 +12,7 @@
   configText ? "",
 }:
 let
-  version = "2512";
+  version = "2605";
 
   sysArch =
     if stdenv.hostPlatform.system == "x86_64-linux" then
@@ -39,8 +39,8 @@ let
     pname = "omnissa-horizon-files";
     inherit version;
     src = fetchurl {
-      url = "https://download3.omnissa.com/software/CART26FQ4_LIN_2512_TARBALL/Omnissa-Horizon-Client-Linux-2512-8.17.0-20187591429.tar.gz";
-      hash = "sha256-dYvP3W/tciqwazuVu4ib9gB98JUJykczd7sPCUih/Ew=";
+      url = "https://download3.omnissa.com/software/CART27FQ1_LIN_2603_TARBALL/Omnissa-Horizon-Client-Linux-2603-8.18.0-24120621798.tar.gz";
+      hash = "sha256:acd30479cec91ee693bbd685880fa3834f3678f8dd336511bb9d732f134f71d7";
     };
     nativeBuildInputs = [ makeWrapper ];
     installPhase = ''
@@ -102,17 +102,17 @@ let
           pixman
           udev
           omnissaHorizonClientFiles
-          xorg.libX11
-          xorg.libXau
-          xorg.libXcursor
-          xorg.libXext
-          xorg.libXi
-          xorg.libXinerama
-          xorg.libxkbfile
-          xorg.libXrandr
-          xorg.libXrender
-          xorg.libXScrnSaver
-          xorg.libXtst
+          libx11
+          libxau
+          libxcursor
+          libxext
+          libxi
+          libxinerama
+          libxkbfile
+          libxrandr
+          libxrender
+          libxscrnsaver
+          libxtst
           zlib
           libxml2_13
 

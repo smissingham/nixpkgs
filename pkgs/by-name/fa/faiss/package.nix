@@ -5,6 +5,7 @@
   stdenv,
   capiSupport ? true,
   cmake,
+  swig,
   cudaPackages ? { },
   cudaSupport ? config.cudaSupport,
   pythonSupport ? true,
@@ -12,7 +13,6 @@
   sharedLibrarySupport ? false,
   llvmPackages,
   blas,
-  swig,
   autoAddDriverRunpath,
   optLevel ?
     let
@@ -42,7 +42,10 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "faiss";
-  version = "1.13.2";
+  version = "1.14.2";
+
+  __structuredAttrs = true;
+  strictDeps = true;
 
   outputs = [ "out" ] ++ lib.optionals pythonSupport [ "dist" ];
 
@@ -50,11 +53,12 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "facebookresearch";
     repo = "faiss";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-EiqkOkMI65T2kNNMQvjl51GIN4XGzTKpkpQ3ImFa3rs=";
+    hash = "sha256-g8URLqh7VXlb5vvpkiUUfE6cgtkMwYNGzs26iUtg28A=";
   };
 
   nativeBuildInputs = [
     cmake
+    swig
   ]
   ++ lib.optionals cudaSupport [
     cudaPackages.cuda_nvcc
@@ -68,7 +72,6 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     blas
-    swig
   ]
   ++ lib.optionals pythonSupport [ python3Packages.numpy ]
   ++ lib.optionals stdenv.cc.isClang [ llvmPackages.openmp ]
@@ -107,7 +110,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Library for efficient similarity search and clustering of dense vectors by Facebook Research";
     mainProgram = "demo_ivfpq_indexing";
     homepage = "https://github.com/facebookresearch/faiss";
-    changelog = "https://github.com/facebookresearch/faiss/blob/v${finalAttrs.version}/CHANGELOG.md";
+    changelog = "https://github.com/facebookresearch/faiss/blob/${finalAttrs.src.tag}/CHANGELOG.md";
     license = lib.licenses.mit;
     platforms = lib.platforms.unix;
     maintainers = with lib.maintainers; [ SomeoneSerge ];

@@ -7,12 +7,14 @@
   dateparser,
   dnspython,
   fetchFromGitHub,
+  lookyloo-models,
   orjson,
   playwright-stealth,
   playwright,
   poetry-core,
-  puremagic,
+  pure-magic-rs,
   pydub,
+  pyfaup-rs,
   pytz,
   requests,
   rfc3161-client,
@@ -24,14 +26,14 @@
 
 buildPythonPackage rec {
   pname = "playwrightcapture";
-  version = "1.36.1";
+  version = "1.39.12";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Lookyloo";
     repo = "PlaywrightCapture";
     tag = "v${version}";
-    hash = "sha256-EXF4X+KM7AvwvxkU9KFUM4pc1q8IGLo8fpycdVmTnuY=";
+    hash = "sha256-k+mzrgw4BvTGmjp/j521BQKwnaHrcNrr/9U2mgzsf8E=";
   };
 
   pythonRelaxDeps = [
@@ -52,10 +54,12 @@ buildPythonPackage rec {
     beautifulsoup4
     dateparser
     dnspython
+    lookyloo-models
     orjson
     playwright
     playwright-stealth
-    puremagic
+    pure-magic-rs
+    pyfaup-rs
     pytz
     requests
     rfc3161-client

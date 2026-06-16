@@ -1,25 +1,25 @@
 {
   lib,
-  buildGoModule,
+  buildGo126Module,
   fetchFromGitHub,
   stdenvNoCC,
   nixosTests,
   nix-update-script,
   nodejs,
-  pnpm_9,
+  pnpm_11,
   fetchPnpmDeps,
   pnpmConfigHook,
   typescript,
   versionCheckHook,
 }:
-buildGoModule (finalAttrs: {
+buildGo126Module (finalAttrs: {
   pname = "qui";
-  version = "1.12.0";
+  version = "1.19.0";
   src = fetchFromGitHub {
     owner = "autobrr";
     repo = "qui";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-j0d8aJ9qcK3+/g+qNBsH84U5zQho6bl5TdzHQRQsabs=";
+    hash = "sha256-h6GmxwOxqh88Zy7tFD/GFQ8NrpBcanFPBXGUmfoIe3I=";
   };
 
   qui-web = stdenvNoCC.mkDerivation (finalAttrs': {
@@ -29,7 +29,7 @@ buildGoModule (finalAttrs: {
     nativeBuildInputs = [
       nodejs
       pnpmConfigHook
-      pnpm_9
+      pnpm_11
       typescript
     ];
 
@@ -42,9 +42,9 @@ buildGoModule (finalAttrs: {
         src
         sourceRoot
         ;
-      pnpm = pnpm_9;
-      fetcherVersion = 2;
-      hash = "sha256-3TAB5StrKBmgit02J7GiMfk6EDl8oiLvcOAnCJ9ian4=";
+      pnpm = pnpm_11;
+      fetcherVersion = 3;
+      hash = "sha256-OEr5uyMnwP1TkSxRFNaopB9AAx2OVE7lNEzGyQwF6kc=";
     };
 
     postBuild = ''
@@ -56,7 +56,7 @@ buildGoModule (finalAttrs: {
     '';
   });
 
-  vendorHash = "sha256-hdgTC/oA2ZUc7mqA3v1vunXcu+aeKGw2fEUBBeerCeg=";
+  vendorHash = "sha256-pkktl+0dBSbUuxZ1ycTV0HZl/wO79LtmNaamyZ+Z9lY=";
 
   preBuild = ''
     cp -r ${finalAttrs.qui-web}/* web/dist
@@ -67,11 +67,22 @@ buildGoModule (finalAttrs: {
     "-X main.PolarOrgID="
   ];
 
+  # some season-pack tests use non-existent source paths (e.g. /media/...) and
+  # assert on a same-filesystem check that resolves them up to /. go's
+  # t.TempDir honours $TMPDIR, which defaults to /build. so just point it to
+  # something sane
+  preCheck = ''
+    export TMPDIR=/tmp
+  '';
+
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
   versionCheckProgramArg = "version";
   doInstallCheck = true;
+
+  # Required for tests on Darwin
+  __darwinAllowLocalNetworking = true;
 
   passthru = {
     updateScript = nix-update-script {

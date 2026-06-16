@@ -29,16 +29,16 @@
   giflib,
   libpng,
   lcms2,
-  libX11,
-  libICE,
-  libXext,
-  libXrender,
-  libXtst,
-  libXt,
-  libXi,
-  libXinerama,
-  libXcursor,
-  libXrandr,
+  libx11,
+  libice,
+  libxext,
+  libxrender,
+  libxtst,
+  libxt,
+  libxi,
+  libxinerama,
+  libxcursor,
+  libxrandr,
   fontconfig,
 
   setJavaClassPath,
@@ -276,16 +276,16 @@ stdenv.mkDerivation (finalAttrs: {
     alsa-lib
     libjpeg
     giflib
-    libX11
-    libICE
-    libXext
-    libXrender
-    libXtst
-    libXt
-    libXi
-    libXinerama
-    libXcursor
-    libXrandr
+    libx11
+    libice
+    libxext
+    libxrender
+    libxtst
+    libxt
+    libxi
+    libxinerama
+    libxcursor
+    libxrandr
     fontconfig
   ]
   ++ lib.optionals (atLeast11 && !atLeast21) [
@@ -353,17 +353,10 @@ stdenv.mkDerivation (finalAttrs: {
         "--with-milestone=fcs"
       ]
   )
-  ++ lib.optionals (!atLeast21) (
-    if atLeast11 then
-      [
-        "--with-freetype=system"
-        "--with-harfbuzz=system"
-      ]
-    else
-      [
-        "--disable-freetype-bundling"
-      ]
-  )
+  ++ lib.optionals (!atLeast21 && atLeast11) [
+    "--with-freetype=system"
+    "--with-harfbuzz=system"
+  ]
   ++ lib.optionals atLeast11 [
     "--with-libjpeg=system"
     "--with-libpng=system"

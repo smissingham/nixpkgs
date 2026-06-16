@@ -12,13 +12,13 @@
 }:
 
 let
-  version = "1.23.3+142";
+  version = "1.23.11+151";
 
   src = fetchFromGitHub {
     owner = "FriesI23";
     repo = "mhabit";
     tag = "v${version}";
-    hash = "sha256-jseb1AcM+AygVLFN3O5P2LiQppxOuLWMmBON0FRqPFQ=";
+    hash = "sha256-1MGZE50ruHBLQ4Dma6mpJuLNevPIGtjHjlMucAwlK0c=";
   };
 in
 flutter338.buildFlutterApplication {
@@ -35,7 +35,7 @@ flutter338.buildFlutterApplication {
   ];
 
   # https://github.com/juliansteenbakker/flutter_secure_storage/issues/965
-  CXXFLAGS = [ "-Wno-deprecated-literal-operator" ];
+  env.CXXFLAGS = toString [ "-Wno-deprecated-literal-operator" ];
 
   postInstall = ''
     install -Dm644 flatpak/io.github.friesi23.mhabit.desktop --target-directory=$out/share/applications

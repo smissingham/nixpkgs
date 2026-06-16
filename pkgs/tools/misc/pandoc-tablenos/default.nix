@@ -1,28 +1,26 @@
 {
-  buildPythonApplication,
-  fetchFromGitHub,
   lib,
-  pandoc-xnos,
-  setuptools,
+  python3Packages,
+  fetchFromGitHub,
 }:
 
-buildPythonApplication rec {
+python3Packages.buildPythonApplication rec {
   pname = "pandoc-tablenos";
   version = "2.3.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "tomduck";
-    repo = pname;
-    rev = version;
-    sha256 = "sha256-FwzsRziY3PoySo9hIFuLw6tOO9oQij6oQEyoY8HgnII=";
+    repo = "pandoc-tablenos";
+    tag = version;
+    hash = "sha256-FwzsRziY3PoySo9hIFuLw6tOO9oQij6oQEyoY8HgnII=";
   };
 
-  nativeBuildInputs = [
+  nativeBuildInputs = with python3Packages; [
     setuptools
   ];
 
-  propagatedBuildInputs = [ pandoc-xnos ];
+  propagatedBuildInputs = with python3Packages; [ pandoc-xnos ];
 
   # Different pandoc executables are not available
   doCheck = false;

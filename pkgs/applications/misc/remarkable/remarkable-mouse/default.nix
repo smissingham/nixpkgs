@@ -1,28 +1,29 @@
 {
   lib,
-  buildPythonApplication,
-  fetchPypi,
-  libevdev,
-  paramiko,
-  pynput,
-  screeninfo,
+  python3Packages,
+  fetchFromGitHub,
 }:
 
-buildPythonApplication rec {
+python3Packages.buildPythonApplication {
   pname = "remarkable-mouse";
-  version = "7.1.1";
-  format = "setuptools";
+  version = "unstable-2024-02-23";
 
-  src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-82P9tE3jiUlKBGZCiWDoL+9VJ06Bc+If+aMfcEEU90U=";
+  src = fetchFromGitHub {
+    owner = "Evidlo";
+    repo = "remarkable_mouse";
+    rev = "05142ef37a8b3f9e350156a14c2dec6844ed0ea8";
+    hash = "sha256-0X/7SIfSnlEL98fxJBAYrHAkRmdtymqA7xBmVoa5VIw=";
   };
 
-  propagatedBuildInputs = [
+  pyproject = true;
+  build-system = with python3Packages; [ setuptools ];
+
+  propagatedBuildInputs = with python3Packages; [
     screeninfo
     paramiko
     pynput
     libevdev
+    tkinter
   ];
 
   # no tests

@@ -10,13 +10,13 @@
 
 buildGoModule (finalAttrs: {
   pname = "databricks-cli";
-  version = "0.278.0";
+  version = "1.2.1";
 
   src = fetchFromGitHub {
     owner = "databricks";
     repo = "cli";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-b7aO0fgSjbQLDt2YeXnZy0xq/2T6CGmsiXxE5CgnvfI=";
+    hash = "sha256-pIcLZQm/53AMk51jEgM0j1yUR2FU3fhDgVGDBk7yaj4=";
   };
 
   # Otherwise these tests fail asserting that the version is 0.0.0-dev
@@ -25,13 +25,20 @@ buildGoModule (finalAttrs: {
       --replace-fail "cli/0.0.0-dev" "cli/${finalAttrs.version}"
   '';
 
-  vendorHash = "sha256-qLIJP2YYCckxzCAYNiBcXNpfKVFQQTwy9ysKrsYKGvI=";
+  vendorHash = "sha256-TAyB9hpiNDDct2We7bbOiNr7ZkbRtF5cYjPmeLfUDkE=";
 
   excludedPackages = [
     "bundle/internal"
     "acceptance"
     "integration"
     "tools/testrunner"
+    "tools/testmask"
+    "cmd/auth"
+    "cmd/root"
+    "cmd/labs/project"
+    "libs/auth"
+    "libs/databrickscfg"
+    "libs/hostmetadata"
   ];
 
   ldflags = [
@@ -48,18 +55,23 @@ buildGoModule (finalAttrs: {
       # Need network
       "TestConsistentDatabricksSdkVersion"
       "TestTerraformArchiveChecksums"
-      "TestExpandPipelineGlobPaths"
+      "TestExpandGlobPathsInPipelines"
       "TestRelativePathTranslationDefault"
       "TestRelativePathTranslationOverride"
       "TestWorkspaceVerifyProfileForHost"
       "TestWorkspaceVerifyProfileForHost/default_config_file_with_match"
       "TestWorkspaceResolveProfileFromHost"
       "TestWorkspaceResolveProfileFromHost/no_config_file"
-      "TestBundleConfigureDefault"
+      "TestWorkspaceClientNormalizesHostBeforeProfileResolution"
+      "TestClearWorkspaceClient"
+      "TestValidateFolderPermissions"
+      "TestFilesToSync"
       # Use uv venv which doesn't work with nix
       # https://github.com/astral-sh/uv/issues/4450
       "TestVenvSuccess"
       "TestPatchWheel"
+      # Requires HOME to be set
+      "TestCacheDirEnvVar"
     ]);
 
   nativeCheckInputs = [

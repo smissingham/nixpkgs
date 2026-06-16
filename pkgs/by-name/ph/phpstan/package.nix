@@ -9,13 +9,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "phpstan";
-  version = "2.1.34";
+  version = "2.2.1";
 
   src = fetchFromGitHub {
     owner = "phpstan";
     repo = "phpstan";
     tag = finalAttrs.version;
-    hash = "sha256-/SSOLJiZunLDoxsKmVxICjymFLLu0aOXCTn2jNklTyA=";
+    hash = "sha256-oZ4ph5pQimUuJVjIRhGDgFg4rbrMwVGxdXC71zVh6Lc=";
   };
 
   nativeBuildInputs = [
@@ -49,6 +49,9 @@ stdenv.mkDerivation (finalAttrs: {
     '';
     license = lib.licenses.mit;
     mainProgram = "phpstan";
-    maintainers = [ lib.maintainers.patka ];
+    maintainers = with lib.maintainers; [
+      patka
+      piotrkwiecinski
+    ];
   };
 })

@@ -32,14 +32,14 @@
   staticOnly ? false,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "krb5";
   version = "1.22.1";
 
   __structuredAttrs = true;
 
   src = fetchurl {
-    url = "https://kerberos.org/dist/krb5/${lib.versions.majorMinor version}/krb5-${version}.tar.gz";
+    url = "https://kerberos.org/dist/krb5/${lib.versions.majorMinor finalAttrs.version}/krb5-${finalAttrs.version}.tar.gz";
     hash = "sha256-GogyuMrZI+u/E5T2fi789B46SfRgKFpm41reyPoAU68=";
   };
 
@@ -84,7 +84,7 @@ stdenv.mkDerivation rec {
     "--enable-static"
     "--disable-shared"
   ]
-  ++ lib.optional stdenv.hostPlatform.isFreeBSD ''WARN_CFLAGS=''
+  ++ lib.optional stdenv.hostPlatform.isFreeBSD "WARN_CFLAGS="
   ++ lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
     "krb5_cv_attr_constructor_destructor=yes,yes"
     "ac_cv_func_regcomp=yes"
@@ -114,7 +114,7 @@ stdenv.mkDerivation rec {
   ++ lib.optionals withLibedit [ libedit ]
   ++ lib.optionals withVerto [ libverto ];
 
-  sourceRoot = "krb5-${version}/src";
+  sourceRoot = "krb5-${finalAttrs.version}/src";
 
   postPatch = ''
     substituteInPlace config/shlib.conf \
@@ -187,4 +187,4 @@ stdenv.mkDerivation rec {
       postgresql = postgresql.override { gssSupport = true; };
     };
   };
-}
+})

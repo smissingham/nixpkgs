@@ -1,7 +1,7 @@
 {
   lib,
   stdenv,
-  fetchFromGitea,
+  fetchFromCodeberg,
   fetchpatch,
   ffmpeg-headless,
   mediainfo,
@@ -18,15 +18,14 @@ let
 in
 python3Packages.buildPythonApplication (finalAttrs: {
   pname = "upsies";
-  version = "2026.01.03";
+  version = "2026.05.24";
   pyproject = true;
 
-  src = fetchFromGitea {
-    domain = "codeberg.org";
+  src = fetchFromCodeberg {
     owner = "plotski";
     repo = "upsies";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Ya1v0DR5a4fPsFVJKVSDbgy+hWE136aRV3pFMExlRhU=";
+    hash = "sha256-2gb5eGtEXPaFfFdfE6tBVQGPVmWwnA9Nm2N7OyinWEM=";
   };
 
   patches = [

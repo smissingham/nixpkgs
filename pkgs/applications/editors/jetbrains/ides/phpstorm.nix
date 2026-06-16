@@ -12,20 +12,20 @@ let
   # update-script-start: urls
   urls = {
     x86_64-linux = {
-      url = "https://download.jetbrains.com/webide/PhpStorm-2025.3.1.1.tar.gz";
-      hash = "sha256-u5b/elgB4/kMrgkgyqhz4L2BZqsNqt6Fwb+JIC1eSEk=";
+      url = "https://download.jetbrains.com/webide/PhpStorm-2026.1.3.tar.gz";
+      hash = "sha256-hXb2KcCaNKIJOGbN0ZUDxMKuX++dO1FRoxvC580VIHQ=";
     };
     aarch64-linux = {
-      url = "https://download.jetbrains.com/webide/PhpStorm-2025.3.1.1-aarch64.tar.gz";
-      hash = "sha256-iHIsnxTpuunA/L8/ZQsbQCqEfIu2lvtNNq9V0yPvBvY=";
+      url = "https://download.jetbrains.com/webide/PhpStorm-2026.1.3-aarch64.tar.gz";
+      hash = "sha256-+As41qcyCvAICIttMEi30b8mBTZoWKK4rjxjkVx4TXs=";
     };
     x86_64-darwin = {
-      url = "https://download.jetbrains.com/webide/PhpStorm-2025.3.1.1.dmg";
-      hash = "sha256-L4brbVVJgRgv/A2yu3oDGycWX6z5IiDf/7Zd/W2V2tk=";
+      url = "https://download.jetbrains.com/webide/PhpStorm-2026.1.3.dmg";
+      hash = "sha256-Q9m/XIgDg4F4yH0P35IaInk/se5CXqewvp248VqA4uc=";
     };
     aarch64-darwin = {
-      url = "https://download.jetbrains.com/webide/PhpStorm-2025.3.1.1-aarch64.dmg";
-      hash = "sha256-I1j18NK10Vda4F2VOIm3mvjqUvhFMc7OYq1NpyRG+bw=";
+      url = "https://download.jetbrains.com/webide/PhpStorm-2026.1.3-aarch64.dmg";
+      hash = "sha256-Yo50EhVQDg7c/C3JZ9utZxpsOY0DuZfgYzYtBN9Nmwk=";
     };
   };
   # update-script-end: urls
@@ -39,13 +39,13 @@ mkJetBrainsProduct {
   product = "PhpStorm";
 
   # update-script-start: version
-  version = "2025.3.1.1";
-  buildNumber = "253.29346.257";
+  version = "2026.1.3";
+  buildNumber = "261.25134.104";
   # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));
 
-  buildInputs = [
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     musl
   ];
 
@@ -54,10 +54,7 @@ mkJetBrainsProduct {
     homepage = "https://www.jetbrains.com/phpstorm/";
     description = "PHP IDE from JetBrains";
     longDescription = "PhpStorm provides an editor for PHP, HTML and JavaScript with on-the-fly code analysis, error prevention and automated refactorings for PHP and JavaScript code.";
-    maintainers = with lib.maintainers; [
-      dritter
-      tymscar
-    ];
+    maintainers = with lib.maintainers; [ tymscar ];
     license = lib.licenses.unfree;
     sourceProvenance =
       if stdenv.hostPlatform.isDarwin then

@@ -11,23 +11,25 @@
   nixosTests,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "pict-rs";
-  version = "0.5.19";
+  version = "0.5.23";
 
   src = fetchFromGitea {
     domain = "git.asonix.dog";
     owner = "asonix";
     repo = "pict-rs";
-    rev = "v${version}";
-    sha256 = "sha256-ifuN3Kb7Hhq8H/eoZcumO5yyrxOCA+nWQQvAdFk7w2Q=";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-9FEVqN/j+VCK0CihpfNXSp1JZ3G7/mB5R+NJKQQtwc0=";
   };
 
-  cargoHash = "sha256-wZRWusETLl32BJy5lza4Bvix500VkpXLUpQb5aO8yJ0=";
+  cargoHash = "sha256-LYCLGu569sJkEIm6oHWebIH4+AX7cGnRzPn7U29LNuQ=";
 
-  # needed for internal protobuf c wrapper library
-  PROTOC = "${protobuf}/bin/protoc";
-  PROTOC_INCLUDE = "${protobuf}/include";
+  env = {
+    # needed for internal protobuf c wrapper library
+    PROTOC = "${protobuf}/bin/protoc";
+    PROTOC_INCLUDE = "${protobuf}/include";
+  };
 
   nativeBuildInputs = [ makeWrapper ];
 
@@ -52,4 +54,4 @@ rustPlatform.buildRustPackage rec {
     license = with lib.licenses; [ agpl3Plus ];
     maintainers = with lib.maintainers; [ happysalada ];
   };
-}
+})

@@ -8,17 +8,24 @@
   jq,
   keyutils,
   libgcc,
+  makeBinaryWrapper,
   versionCheckHook,
   writeShellScript,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "proton-pass-cli";
-  version = "1.3.5";
+  version = "2.1.2";
+
+  __structuredAttrs = true;
+  strictDeps = true;
 
   src = finalAttrs.passthru.sources.${stdenv.hostPlatform.system};
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  nativeBuildInputs = [
+    makeBinaryWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     autoPatchelfHook
   ];
 
@@ -37,29 +44,32 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  nativeCheckInputs = [
+  postFixup = ''
+    wrapProgram $out/bin/pass-cli --set PROTON_PASS_NO_UPDATE_CHECK 1
+  '';
+
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgram = "${placeholder "out"}/bin/pass-cli";
-  versionCheckProgramArg = "--version";
 
   passthru = {
     sources = {
       "aarch64-darwin" = fetchurl {
         url = "https://proton.me/download/pass-cli/${finalAttrs.version}/pass-cli-macos-aarch64";
-        hash = "sha256-I+QYefg6ECxxb68RDyjw0dK4+vSOvu8qQ2kPhuPoabU=";
+        hash = "sha256-KuW98gL2fkt/eIbdukTSZyQvzTXMuGGmGs+GAjXeIlA=";
       };
       "aarch64-linux" = fetchurl {
         url = "https://proton.me/download/pass-cli/${finalAttrs.version}/pass-cli-linux-aarch64";
-        hash = "sha256-ohKFj+d75hYev6jwn7WLtf2exNJJN2cFeGkwgFHvx1E=";
+        hash = "sha256-BWJiWBL5QL1Ler1mSzu8/v3q950vmxLy0Kc74f/FUf8=";
       };
       "x86_64-darwin" = fetchurl {
         url = "https://proton.me/download/pass-cli/${finalAttrs.version}/pass-cli-macos-x86_64";
-        hash = "sha256-7TMcen4iX9nr0rxmF7vFWJ19tkNN5d7YqImL0LF9jkw=";
+        hash = "sha256-XZAtgly95dAANK4G4VKUKeOJ3ssIkdhgT9RrD7DGdQA=";
       };
       "x86_64-linux" = fetchurl {
         url = "https://proton.me/download/pass-cli/${finalAttrs.version}/pass-cli-linux-x86_64";
-        hash = "sha256-LerztCDNQ63wYUOfiULdvY2zQDUlVXNcDsf13SDaIg8=";
+        hash = "sha256-UpHt0h2F0iJTi5E0E0WuOwoUeeJU1Ckgwru9NAEsYkM=";
       };
     };
     updateScript = writeShellScript "update-proton-pass-cli" ''

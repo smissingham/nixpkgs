@@ -1,8 +1,8 @@
 {
   stdenv,
+  pnpm,
   lib,
   fetchFromGitHub,
-  pnpm,
   fetchPnpmDeps,
   pnpmConfigHook,
   nodejs,
@@ -10,23 +10,25 @@
   cargo,
   dump_syms,
   python3,
+  xcodebuild,
+  cctools,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "node-sqlcipher";
-  version = "2.4.4";
+  version = "3.3.5";
 
   src = fetchFromGitHub {
     owner = "signalapp";
     repo = "node-sqlcipher";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-70kObW6jYzaquMrj20VMTQg/rDWqIu8o2/m7S3mUZB8=";
+    hash = "sha256-RzuyUx0WEG8j8HwV5cepVJIeqYzJpNemFNtB+9NETto=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     inherit pnpm; # may be different than top-level pnpm
-    fetcherVersion = 1;
-    hash = "sha256-regaYG+SDvIgdnHQVR1GG1A1FSBXpzFfLuyTEdMt1kQ=";
+    fetcherVersion = 3;
+    hash = "sha256-/EcPuqTXXGw1dEN6l1x84cUGyx890/rujjT+zJouIvM=";
   };
 
   cargoRoot = "deps/extension";
@@ -45,6 +47,10 @@ stdenv.mkDerivation (finalAttrs: {
     cargo
     dump_syms
     python3
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    xcodebuild
+    cctools.libtool
   ];
 
   buildPhase = ''
@@ -60,8 +66,10 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
+    mkdir $out
     cp -r dist $out
     cp -r prebuilds $out
+    cp package.json $out
 
     runHook postInstall
   '';
@@ -75,6 +83,6 @@ stdenv.mkDerivation (finalAttrs: {
       # deps/sqlcipher
       bsd3
     ];
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 })

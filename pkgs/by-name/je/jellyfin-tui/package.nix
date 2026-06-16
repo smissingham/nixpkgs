@@ -11,18 +11,18 @@
   versionCheckHook,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "jellyfin-tui";
-  version = "1.3.0";
+  version = "1.5.0";
 
   src = fetchFromGitHub {
     owner = "dhonus";
     repo = "jellyfin-tui";
-    tag = "v${version}";
-    hash = "sha256-AzeIoPdFfuzDrSPcAWqYq9sTHpLR222cz7BMHgVpmNA=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-BeZyJQ04S2Vnqx3sTFe6a0s56KckIzOIfOVz+bkhBoY=";
   };
 
-  cargoHash = "sha256-a08yTZAzBSldSJ+TulU10aF+wLYCAxCA4WRMNfZOWFw=";
+  cargoHash = "sha256-MP6wso9YlxJdN8WPuU149C5Hn3KeL+CekpPyN21ioA0=";
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
@@ -52,8 +52,8 @@ rustPlatform.buildRustPackage rec {
     description = "Jellyfin music streaming client for the terminal";
     mainProgram = "jellyfin-tui";
     homepage = "https://github.com/dhonus/jellyfin-tui";
-    changelog = "https://github.com/dhonus/jellyfin-tui/releases/tag/v${version}";
+    changelog = "https://github.com/dhonus/jellyfin-tui/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ GKHWB ];
   };
-}
+})

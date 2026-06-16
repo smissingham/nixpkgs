@@ -15,12 +15,11 @@
   intltool,
   libayatana-common,
   libgudev,
-  libqtdbusmock,
-  libqtdbustest,
   librda,
   libsForQt5,
   lomiri,
-  mate,
+  marco,
+  mate-settings-daemon,
   pkg-config,
   properties-cpp,
   python3,
@@ -39,6 +38,14 @@ stdenv.mkDerivation (finalAttrs: {
     tag = finalAttrs.version;
     hash = "sha256-rsZjEfAiz1HC5XMjPume1Y6miNAv1kmPFP4J/+NKlsA=";
   };
+
+  patches = [
+    # This should be dropped once the issue is fixed upstream.
+    # https://github.com/AyatanaIndicators/ayatana-indicator-display/pull/108
+    ./patches/0001-service.cpp-Mark-create_phone_menu-as-static.patch
+    ./patches/0002-cppcheck-Workaround-undefined-function-like-macro-fo.patch
+    ./patches/0003-Fix-cppcheck-warning-has-no-initializer.patch
+  ];
 
   postPatch = ''
     # Replace systemd prefix in pkg-config query, use GNUInstallDirs location for /etc
@@ -78,8 +85,8 @@ stdenv.mkDerivation (finalAttrs: {
     lomiri-schemas # lomiri schema
   ])
   ++ [
-    mate.marco # marco schema
-    mate.mate-settings-daemon # mate mouse schema
+    marco # marco schema
+    mate-settings-daemon # mate mouse schema
   ];
 
   nativeCheckInputs = [
@@ -90,8 +97,8 @@ stdenv.mkDerivation (finalAttrs: {
 
   checkInputs = [
     gtest
-    libqtdbusmock
-    libqtdbustest
+    libsForQt5.libqtdbusmock
+    libsForQt5.libqtdbustest
     properties-cpp
   ];
 

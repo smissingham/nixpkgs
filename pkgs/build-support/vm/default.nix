@@ -41,7 +41,7 @@
     "virtio_rng"
     "ext4"
     "virtiofs"
-    "crc32c_generic"
+    "crc32c"
   ],
 }:
 
@@ -307,8 +307,8 @@ let
       ${virtiofsd}/bin/virtiofsd --xattr --socket-path virtio-xchg.sock --sandbox none --seccomp none --shared-dir xchg &
 
       # Wait until virtiofsd has created these sockets to avoid race condition.
-      until [[ -e virtio-store.sock ]]; do ${coreutils}/bin/sleep 1; done
-      until [[ -e virtio-xchg.sock ]]; do ${coreutils}/bin/sleep 1; done
+      until [[ -e virtio-store.sock ]]; do ${coreutils}/bin/sleep 0.1; done
+      until [[ -e virtio-xchg.sock ]]; do ${coreutils}/bin/sleep 0.1; done
 
       ${qemuCommand}
       EOF
@@ -403,8 +403,8 @@ let
         ];
         origArgs = args;
         origBuilder = builder;
-        QEMU_OPTS = "${QEMU_OPTS} -m ${toString memSize} -object memory-backend-memfd,id=mem,size=${toString memSize}M,share=on -machine memory-backend=mem";
-        passAsFile = [ ]; # HACK fix - see https://github.com/NixOS/nixpkgs/issues/16742
+        env.QEMU_OPTS = "${QEMU_OPTS} -m ${toString memSize} -object memory-backend-memfd,id=mem,size=${toString memSize}M,share=on -machine memory-backend=mem";
+        __structuredAttrs = true;
       }
     );
 
@@ -568,7 +568,7 @@ let
 
           echo "unpacking RPMs..."
           set +o pipefail
-          for i in $rpms; do
+          for i in "''${rpms[@]}"; do
               echo "$i..."
               ${rpm}/bin/rpm2cpio "$i" | chroot /mnt ${cpio}/bin/cpio -i --make-directories --unconditional
           done
@@ -585,7 +585,7 @@ let
 
           echo "installing RPMs..."
           PATH=/usr/bin:/bin:/usr/sbin:/sbin $chroot /mnt \
-            rpm -iv --nosignature ${lib.optionalString (!runScripts) "--noscripts"} $rpms
+            rpm -iv --nosignature ${lib.optionalString (!runScripts) "--noscripts"} "''${rpms[@]}"
 
           echo "running post-install script..."
           eval "$postInstall"
@@ -730,7 +730,8 @@ let
             memSize
             ;
 
-          debs = (lib.intersperse "|" debs);
+          debsFlat = lib.flatten debs;
+          debsGrouped = map toString debs;
 
           preVM = createEmptyImage { inherit size fullName; };
 
@@ -749,11 +750,9 @@ let
             # (which have lots of circular dependencies) from barfing.
             echo "unpacking Debs..."
 
-            for deb in $debs; do
-              if test "$deb" != "|"; then
-                echo "$deb..."
-                dpkg-deb --extract "$deb" /mnt
-              fi
+            for deb in "''${debsFlat[@]}"; do
+              echo "$deb..."
+              dpkg-deb --extract "$deb" /mnt
             done
 
             # Make the Nix store available in /mnt, because that's where the .debs live.
@@ -776,10 +775,7 @@ let
 
             export DEBIAN_FRONTEND=noninteractive
 
-            oldIFS="$IFS"
-            IFS="|"
-            for component in $debs; do
-              IFS="$oldIFS"
+            for component in "''${debsGrouped[@]}"; do
               echo
               echo ">>> INSTALLING COMPONENT: $component"
               debs=
@@ -1331,6 +1327,42 @@ let
         })
       ];
       urlPrefix = "https://snapshot.ubuntu.com/ubuntu/20260101T000000Z";
+      packages = commonDebPackages ++ [
+        "diffutils"
+        "libc-bin"
+      ];
+    };
+
+    ubuntu2604x86_64 = {
+      name = "ubuntu-26.04-resolute-amd64";
+      fullName = "Ubuntu 26.04 Resolute (amd64)";
+      packagesLists = [
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute/main/binary-amd64/Packages.xz";
+          hash = "sha256-7ZrEHLJj767MWgagdC3FZXDi+1/5TE8uSy+9zd1zzyQ=";
+        })
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute/universe/binary-amd64/Packages.xz";
+          hash = "sha256-FYe+htZtOFQjJSFeDhCfdb1pXI8k15Os4nYgOKatWB4=";
+        })
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute-updates/main/binary-amd64/Packages.xz";
+          hash = "sha256-xaUdPgtH3jCgTJXYUbksMHvzt6jj6YfdzSAb+91tQNw=";
+        })
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute-updates/universe/binary-amd64/Packages.xz";
+          hash = "sha256-gXEKlgpgyrcnIhYwz1vxypFNX50EMbwhmidbDvUruKc=";
+        })
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute-security/main/binary-amd64/Packages.xz";
+          hash = "sha256-tzAvbwp+/6snpL8TtbtTx2kEL2f+XfGAwDCl/r6ka6Y=";
+        })
+        (fetchurl {
+          url = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z/dists/resolute-security/universe/binary-amd64/Packages.xz";
+          hash = "sha256-gXEKlgpgyrcnIhYwz1vxypFNX50EMbwhmidbDvUruKc=";
+        })
+      ];
+      urlPrefix = "https://snapshot.ubuntu.com/ubuntu/20260515T222303Z";
       packages = commonDebPackages ++ [
         "diffutils"
         "libc-bin"

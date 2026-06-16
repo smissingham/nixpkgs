@@ -21,20 +21,20 @@ let
   # update-script-start: urls
   urls = {
     x86_64-linux = {
-      url = "https://download.jetbrains.com/cpp/CLion-2025.3.1.1.tar.gz";
-      hash = "sha256-vtTTqvG932G0LBOESaUvTOhF1vQiyvZKPuAu/QcQdzY=";
+      url = "https://download.jetbrains.com/cpp/CLion-2026.1.2.tar.gz";
+      hash = "sha256-Q3LOhpwpU6vrPWEzA+s2ZnbRxo+EeodBUHUYs3Xikrs=";
     };
     aarch64-linux = {
-      url = "https://download.jetbrains.com/cpp/CLion-2025.3.1.1-aarch64.tar.gz";
-      hash = "sha256-Yh04N3okMfeqUUL3GZukSUJzMAHdBlE+quDMu/phFc4=";
+      url = "https://download.jetbrains.com/cpp/CLion-2026.1.2-aarch64.tar.gz";
+      hash = "sha256-YM105ozP78oLDmwKL0t4Z4wGjCDh6xvhf/C1oCD6Qi8=";
     };
     x86_64-darwin = {
-      url = "https://download.jetbrains.com/cpp/CLion-2025.3.1.1.dmg";
-      hash = "sha256-H6qUuONV/iYZwDJfylpDr/AvF+Wl4gnVkegZhr8hbmQ=";
+      url = "https://download.jetbrains.com/cpp/CLion-2026.1.2.dmg";
+      hash = "sha256-UEkYDJBjRvvUUB2UFsc37kdp/i+1ctqULSKs62/t9/I=";
     };
     aarch64-darwin = {
-      url = "https://download.jetbrains.com/cpp/CLion-2025.3.1.1-aarch64.dmg";
-      hash = "sha256-I7FDOc8OM0P+FGMCdjKKcnHUbUTPRzFz7l56oTcGiXE=";
+      url = "https://download.jetbrains.com/cpp/CLion-2026.1.2-aarch64.dmg";
+      hash = "sha256-scMwDF+mIfx/66cBrvdxp+gU3+qA2sUWqoGCEhPItjE=";
     };
   };
   # update-script-end: urls
@@ -48,8 +48,8 @@ in
   product = "CLion";
 
   # update-script-start: version
-  version = "2025.3.1.1";
-  buildNumber = "253.29346.307";
+  version = "2026.1.2";
+  buildNumber = "261.24374.148";
   # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));

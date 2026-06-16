@@ -1,15 +1,12 @@
 {
   lib,
-  buildPythonPackage,
+  python3Packages,
   fetchFromGitHub,
-  hatchling,
-  more-itertools,
-  click,
   hyprland,
   makeWrapper,
 }:
 
-buildPythonPackage rec {
+python3Packages.buildPythonPackage (finalAttrs: {
   pname = "hyprshade";
   version = "4.0.1";
   pyproject = true;
@@ -17,16 +14,16 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "loqusion";
     repo = "hyprshade";
-    tag = version;
+    tag = finalAttrs.version;
     hash = "sha256-zK8i2TePJ4cEtGXe/dssHWg+ioCTo1NyqzInQhMaB8w=";
   };
 
   nativeBuildInputs = [
-    hatchling
+    python3Packages.hatchling
     makeWrapper
   ];
 
-  propagatedBuildInputs = [
+  propagatedBuildInputs = with python3Packages; [
     more-itertools
     click
   ];
@@ -45,4 +42,4 @@ buildPythonPackage rec {
     maintainers = with lib.maintainers; [ willswats ];
     platforms = lib.platforms.linux;
   };
-}
+})

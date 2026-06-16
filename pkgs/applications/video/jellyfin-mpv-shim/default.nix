@@ -1,26 +1,17 @@
 {
   lib,
-  buildPythonApplication,
+  python3Packages,
   copyDesktopItems,
   fetchPypi,
   gobject-introspection,
-  jellyfin-apiclient-python,
-  jinja2,
   makeDesktopItem,
-  mpv,
-  pillow,
-  pystray,
-  python,
-  python-mpv-jsonipc,
-  pywebview,
-  tkinter,
   wrapGAppsHook3,
 }:
 
-buildPythonApplication rec {
+python3Packages.buildPythonApplication rec {
   pname = "jellyfin-mpv-shim";
   version = "2.9.0";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
@@ -33,7 +24,9 @@ buildPythonApplication rec {
     gobject-introspection
   ];
 
-  propagatedBuildInputs = [
+  build-system = with python3Packages; [ setuptools ];
+
+  dependencies = with python3Packages; [
     jellyfin-apiclient-python
     mpv
     pillow
@@ -46,6 +39,9 @@ buildPythonApplication rec {
     # display_mirror dependencies
     jinja2
     pywebview
+
+    # discord rich presence dependency
+    pypresence
   ];
 
   # override $HOME directory:
@@ -61,19 +57,19 @@ buildPythonApplication rec {
 
   postPatch = ''
     substituteInPlace jellyfin_mpv_shim/conf.py \
-      --replace "check_updates: bool = True" "check_updates: bool = False" \
-      --replace "notify_updates: bool = True" "notify_updates: bool = False"
+      --replace-fail "check_updates: bool = True" "check_updates: bool = False" \
+      --replace-fail "notify_updates: bool = True" "notify_updates: bool = False"
     # python-mpv renamed to mpv with 1.0.4
     substituteInPlace setup.py \
-      --replace "python-mpv" "mpv" \
-      --replace "mpv-jsonipc" "python_mpv_jsonipc"
+      --replace-fail "python-mpv" "mpv" \
+      --replace-fail "mpv-jsonipc" "python_mpv_jsonipc"
   '';
 
   # Install all the icons for the desktop item
   postInstall = ''
     for s in 16 32 48 64 128 256; do
       mkdir -p $out/share/icons/hicolor/''${s}x''${s}/apps
-      ln -s $out/${python.sitePackages}/jellyfin_mpv_shim/integration/jellyfin-''${s}.png \
+      ln -s $out/${python3Packages.python.sitePackages}/jellyfin_mpv_shim/integration/jellyfin-''${s}.png \
         $out/share/icons/hicolor/''${s}x''${s}/apps/${pname}.png
     done
   '';
@@ -84,8 +80,6 @@ buildPythonApplication rec {
   '';
   dontWrapGApps = true;
 
-  # no tests
-  doCheck = false;
   pythonImportsCheck = [ "jellyfin_mpv_shim" ];
 
   desktopItems = [
@@ -113,6 +107,7 @@ buildPythonApplication rec {
       to prevent needless transcoding of your media files on the server. The player also has
       advanced features, such as bulk subtitle updates and launching commands on events.
     '';
+    changelog = "https://github.com/jellyfin/jellyfin-mpv-shim/releases/tag/v${version}";
     license = with lib.licenses; [
       # jellyfin-mpv-shim
       gpl3Only

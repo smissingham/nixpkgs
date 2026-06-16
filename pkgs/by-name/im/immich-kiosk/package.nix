@@ -9,20 +9,20 @@
 }:
 buildGoModule rec {
   pname = "immich-kiosk";
-  version = "0.30.2";
+  version = "0.31.0";
 
   src = fetchFromGitHub {
     owner = "damongolding";
     repo = "immich-kiosk";
     tag = "v${version}";
-    hash = "sha256-q321eiHXzYfch3qod1w1EAk95AAvLiDZhhiKmyL2Ki4=";
+    hash = "sha256-PHdHhhVy0RWMFzR4ZEyWLOiRYHROadLiPIdqkUZMTow=";
   };
 
   # Delete vendor directory to regenerate it consistently across platforms
   postPatch = ''
     rm -rf vendor
   '';
-  vendorHash = "sha256-XZ49wYC+oUqEL0HXeqdRQAI2Y4zJAMgfqL/+6RrBWos=";
+  vendorHash = "sha256-3M3fXwCkljfY8wjXf+PdcbqnkyPKaDCJWt9/nRA/+Dc=";
   proxyVendor = true;
 
   pnpmDeps = fetchPnpmDeps {
@@ -33,8 +33,8 @@ buildGoModule rec {
       ;
     pnpm = pnpm_9;
     sourceRoot = "${src.name}/frontend";
-    hash = "sha256-ELIbM+tWOGntv8XmNvRZ/Q2iSRq0g9Kv5LnkwLPisPM=";
-    fetcherVersion = 2;
+    hash = "sha256-8iKug4zsX3u0vS68osKRW6iOP+A3OdjI3yxNPIJaQqM=";
+    fetcherVersion = 3;
   };
 
   # Frontend is in a subdirectory

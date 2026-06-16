@@ -8,24 +8,27 @@
   pytestCheckHook,
   requests,
   setuptools,
-  setuptools-scm,
 }:
 
 buildPythonPackage rec {
   pname = "charset-normalizer";
-  version = "3.4.3";
+  version = "3.4.7";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "jawah";
     repo = "charset_normalizer";
     tag = version;
-    hash = "sha256-ZEHxBErjjvofqe3rkkgiEuEJcoluwo+2nZrLfrsHn5Q=";
+    hash = "sha256-dOdJ4f98smCYdskp3BwtQG6aOyK+2a73+x580FKRWDk=";
   };
+
+  postPatch = ''
+    substituteInPlace _mypyc_hook/backend.py \
+      --replace-fail "mypy>=1.4.1,<=1.20" "mypy"
+  '';
 
   build-system = [
     setuptools
-    setuptools-scm
   ]
   ++ lib.optional (!isPyPy) mypy;
 

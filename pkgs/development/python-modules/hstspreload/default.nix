@@ -5,16 +5,16 @@
   setuptools,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage (finalAttrs: {
   pname = "hstspreload";
-  version = "2025.12.3";
+  version = "2026.6.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "sethmlarson";
     repo = "hstspreload";
-    tag = version;
-    hash = "sha256-K44Lzom7AQMsnJGN9RYNfZuD+wbbZtTGStjJtS/4NcE=";
+    tag = finalAttrs.version;
+    hash = "sha256-9YkMEu3ll2hRYrkiIo6mIdRIYoOLrtjv3B4Jq9wfgOo=";
   };
 
   build-system = [ setuptools ];
@@ -30,4 +30,4 @@ buildPythonPackage rec {
     license = lib.licenses.bsd3;
     maintainers = [ ];
   };
-}
+})

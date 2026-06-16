@@ -82,7 +82,7 @@ in
 {
   meta = {
     doc = ./gnome.md;
-    maintainers = lib.teams.gnome.members;
+    teams = [ lib.teams.gnome ];
   };
 
   imports = [
@@ -390,6 +390,10 @@ in
       systemd.packages = [
         pkgs.gnome-session
         pkgs.gnome-shell
+      ]
+      ++ removeExcluded [
+        pkgs.xdg-user-dirs # Update user dirs as described in https://freedesktop.org/wiki/Software/xdg-user-dirs/
+        pkgs.xdg-user-dirs-gtk # Used to create the default bookmarks
       ];
 
       services.udev.packages = [
@@ -465,6 +469,7 @@ in
         pkgs.gnome-maps
         pkgs.gnome-music
         pkgs.gnome-system-monitor
+        pkgs.gnome-tecla
         pkgs.gnome-weather
         pkgs.loupe
         pkgs.nautilus

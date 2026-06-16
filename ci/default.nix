@@ -87,22 +87,30 @@ let
           "pkgs/development/haskell-modules/configuration-hackage2nix/transitive-broken.yaml"
         ];
 
-        programs.nixf-diagnose.enable = true;
-        settings.formatter.nixf-diagnose = {
-          # Ensure nixfmt cleans up after nixf-diagnose.
-          priority = -1;
-          options = [
-            "--auto-fix"
+        programs.nixf-diagnose = {
+          enable = true;
+          ignore = [
             # Rule names can currently be looked up here:
             # https://github.com/nix-community/nixd/blob/main/libnixf/src/Basic/diagnostic.py
             # TODO: Remove the following and fix things.
-            "--ignore=sema-unused-def-lambda-noarg-formal"
-            "--ignore=sema-unused-def-lambda-witharg-arg"
-            "--ignore=sema-unused-def-lambda-witharg-formal"
-            "--ignore=sema-unused-def-let"
+            "sema-unused-def-lambda-noarg-formal"
+            "sema-unused-def-lambda-witharg-arg"
+            "sema-unused-def-lambda-witharg-formal"
+            "sema-unused-def-let"
             # Keep this rule, because we have `lib.or`.
-            "--ignore=or-identifier"
+            "or-identifier"
+            # TODO: remove after outstanding prelude diagnostics issues are fixed:
+            # https://github.com/nix-community/nixd/issues/761
+            # https://github.com/nix-community/nixd/issues/762
+            "sema-primop-removed-prefix"
+            "sema-primop-overridden"
+            "sema-constant-overridden"
+            "sema-primop-unknown"
           ];
+        };
+        settings.formatter.nixf-diagnose = {
+          # Ensure nixfmt cleans up after nixf-diagnose.
+          priority = -1;
           excludes = [
             # Auto-generated; violates sema-extra-with
             # Can only sensibly be removed when --auto-fix supports multiple fixes at once:
@@ -176,9 +184,10 @@ rec {
     nix = pkgs.nixVersions.latest;
   };
   parse = pkgs.lib.recurseIntoAttrs {
-    latest = pkgs.callPackage ./parse.nix { nix = pkgs.nixVersions.latest; };
-    lix = pkgs.callPackage ./parse.nix { nix = pkgs.lix; };
+    nix_latest = pkgs.callPackage ./parse.nix { nix = pkgs.nixVersions.latest; };
     nix_2_28 = pkgs.callPackage ./parse.nix { nix = pkgs.nixVersions.nix_2_28; };
+    lix = pkgs.callPackage ./parse.nix { nix = pkgs.lix; };
+    lix_latest = pkgs.callPackage ./parse.nix { nix = pkgs.lixPackageSets.latest.lix; };
   };
   shell = import ../shell.nix { inherit nixpkgs system; };
   tarball = import ../pkgs/top-level/make-tarball.nix {

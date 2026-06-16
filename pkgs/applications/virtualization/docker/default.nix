@@ -67,10 +67,10 @@ let
       docker-meta = {
         license = lib.licenses.asl20;
         maintainers = with lib.maintainers; [
-          offline
           vdemeester
           teutat3s
         ];
+        identifiers.cpeParts = lib.meta.cpeFullVersionWithVendor "docker" version;
       };
 
       docker-runc = runc.overrideAttrs {
@@ -221,7 +221,7 @@ let
               --prefix PATH : "$out/libexec/docker:$extraPath"
 
             ln -s ${docker-containerd}/bin/containerd $out/libexec/docker/containerd
-            ln -s ${docker-containerd}/bin/containerd-shim${lib.optionalString (lib.versionAtLeast version "29.0.0") ''-runc-v2''} $out/libexec/docker/containerd-shim${lib.optionalString (lib.versionAtLeast version "29.0.0") ''-runc-v2''}
+            ln -s ${docker-containerd}/bin/containerd-shim${lib.optionalString (lib.versionAtLeast version "29.0.0") "-runc-v2"} $out/libexec/docker/containerd-shim${lib.optionalString (lib.versionAtLeast version "29.0.0") "-runc-v2"}
             ln -s ${docker-runc}/bin/runc $out/libexec/docker/runc
             ln -s ${docker-tini}/bin/tini-static $out/libexec/docker/docker-init
 
@@ -248,6 +248,7 @@ let
           meta = docker-meta // {
             homepage = "https://mobyproject.org/";
             description = "Collaborative project for the container ecosystem to assemble container-based systems";
+            identifiers.cpeParts = lib.meta.cpeFullVersionWithVendor "mobyproject" version;
           };
         }
       );
@@ -366,6 +367,8 @@ let
           # Exposed for tarsum build on non-linux systems (build-support/docker/default.nix)
           inherit moby-src;
           tests = lib.optionalAttrs (!clientOnly) { inherit (nixosTests) docker; };
+          # run with: nix-shell ./maintainers/scripts/update.nix --argstr package docker
+          updateScript = ./update.sh;
         };
 
         meta = docker-meta // {
@@ -394,10 +397,10 @@ let
 in
 {
   # Get revisions from
-  # https://github.com/moby/moby/tree/${version}/hack/dockerfile/install/*
+  # https://github.com/moby/moby/tree/${mobyRev}/Dockerfile
   docker_25 =
     let
-      version = "25.0.13";
+      version = "25.0.16";
     in
     callPackage dockerGen {
       inherit version;
@@ -406,7 +409,7 @@ in
       cliRev = "43987fca488a535d810c429f75743d8c7b63bf4f";
       cliHash = "sha256-OwufdfuUPbPtgqfPeiKrQVkOOacU2g4ommHb770gV40=";
       mobyRev = "v${version}";
-      mobyHash = "sha256-X+1QG/toJt+VNLktR5vun8sG3PRoTVBAcekFXxocJdU=";
+      mobyHash = "sha256-St5yLoxo8QUTu7PjNcblS/EzZm98T189RPl1y+pAyHA=";
       runcRev = "v1.2.5";
       runcHash = "sha256-J/QmOZxYnMPpzm87HhPTkYdt+fN+yeSUu2sv6aUeTY4=";
       containerdRev = "v1.7.27";
@@ -415,38 +418,20 @@ in
       tiniHash = "sha256-jCBNfoJAjmcTJBx08kHs+FmbaU82CbQcf0IVjd56Nuw=";
     };
 
-  docker_28 =
-    let
-      version = "28.5.2";
-    in
-    callPackage dockerGen {
-      inherit version;
-      cliRev = "v${version}";
-      cliHash = "sha256-11wbqvenTJooAzqOEp0UivPxhvWwSl1thCAzDMx0i/o=";
-      mobyRev = "v${version}";
-      mobyHash = "sha256-T5zz1lSLVdMR646CfhWAiVU4/VPAY1CRU+jIdjEWycs=";
-      runcRev = "v1.3.3";
-      runcHash = "sha256-Ci/2otySB7FaFoutmzWeVaTU+tO/lnluQfneFSQM1RE=";
-      containerdRev = "v1.7.28";
-      containerdHash = "sha256-vz7RFJkFkMk2gp7bIMx1kbkDFUMS9s0iH0VoyD9A21s=";
-      tiniRev = "369448a167e8b3da4ca5bca0b3307500c3371828";
-      tiniHash = "sha256-jCBNfoJAjmcTJBx08kHs+FmbaU82CbQcf0IVjd56Nuw=";
-    };
-
   docker_29 =
     let
-      version = "29.1.5";
+      version = "29.5.3";
     in
     callPackage dockerGen {
       inherit version;
       cliRev = "v${version}";
-      cliHash = "sha256-fg18lmJsMoy7lpL4hGkIhM0LKnhEY5nl5f0YuW8yg0A=";
+      cliHash = "sha256-ZYfBWNVp7w8ZKdRA6bmDVQV4UEp+t8lWehInvtfysxM=";
       mobyRev = "docker-v${version}";
-      mobyHash = "sha256-iUoqJT0lIiVh5WaHzlw71QXxc3sEsSpQpADb0KveXNQ=";
-      runcRev = "v1.3.4";
-      runcHash = "sha256-1IfY08sBoDpbLrwz1AKBRSTuCZyOgQzYPHTDUI6fOZ8=";
-      containerdRev = "v2.2.0";
-      containerdHash = "sha256-LXBGA03FTrrbxlH+DxPBFtp3/AYQf096YE2rpe6A+WM=";
+      mobyHash = "sha256-D+XjHsKUFgMBCQsFI825JIGHEQmDt3NQCwpTdu6XSc8=";
+      runcRev = "v1.3.5";
+      runcHash = "sha256-Swphxbu/OLkUrfRjLMZIVGwYb7AN0xHdyxm0ysAVam0=";
+      containerdRev = "v2.2.4";
+      containerdHash = "sha256-F0lw7zh4V9JlFQGkE4RNT1VLX8WWLgZAAvbP12jnRMw=";
       tiniRev = "369448a167e8b3da4ca5bca0b3307500c3371828";
       tiniHash = "sha256-jCBNfoJAjmcTJBx08kHs+FmbaU82CbQcf0IVjd56Nuw=";
     };

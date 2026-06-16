@@ -19,19 +19,14 @@
 buildHomeAssistantComponent rec {
   owner = "signalkraft";
   domain = "mypyllant";
-  version = "0.9.9";
+  version = "0.9.13";
 
   src = fetchFromGitHub {
     owner = "signalkraft";
     repo = "mypyllant-component";
     tag = "v${version}";
-    hash = "sha256-6T8SGAP2535VqZmvSeITpMIa0SBJhnWsOKM1Y66WhHE=";
+    hash = "sha256-ydayYZjebVQULYyF3KWJHuSg89dY+bGYe+5zHGxfnEw=";
   };
-
-  patches = [
-    # Migrates tests to the new version of `pytest-homeassistant-custom-component` (see https://github.com/signalkraft/mypyllant-component/pull/394).
-    ./migrate-to-new-pytest-homeassistant-custom-component.patch
-  ];
 
   dependencies = [
     mypyllant

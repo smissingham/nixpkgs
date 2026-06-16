@@ -9,7 +9,7 @@
 
 let
   pname = "notesnook";
-  version = "3.3.5";
+  version = "3.3.21";
 
   inherit (stdenv.hostPlatform) system;
   throwSystem = throw "Unsupported system: ${system}";
@@ -27,12 +27,16 @@ let
     url = "https://github.com/streetwriters/notesnook/releases/download/v${version}/notesnook_${suffix}";
     hash =
       {
-        x86_64-linux = "sha256-jvQph74dMQgino3K1ZFLT/fsJVdTHVqMQaW0RQhfci0=";
-        aarch64-linux = "sha256-jrKmZmdx1T1wrlM0y195Z2MsI1XpFn0gyFyf7N/aUzo=";
-        x86_64-darwin = "sha256-bJ+sq6/lZcLcM7R2KAigemdpRDqSiExfcSunNQ7cGw0=";
-        aarch64-darwin = "sha256-DTY0gq62aXOanZvYletyXl5xmcs30vWTKE4nZujRCq0=";
+        x86_64-linux = "sha256-NmhV+x5HrKBO7BX1bJyjChKQF/j38kQqJ3x0amSXzGU=";
+        aarch64-linux = "sha256-IU4hF/ol4pyh+ABTri2aqwqaB+cfrHLtsF7wrqE+wEY=";
+        x86_64-darwin = "sha256-YhJvkKreWUReEgs4R9lWV0/cx3d0hrjKTHZn0hDsp3k=";
+        aarch64-darwin = "sha256-9CTGpCPJY6sq6JWDpoCTyOTt/vtCazDaoDzFFUzR9zg=";
       }
       .${system} or throwSystem;
+  };
+
+  passthru = {
+    updateScript = ./update.sh;
   };
 
   appimageContents = appimageTools.extractType2 {
@@ -49,9 +53,7 @@ let
     '';
     homepage = "https://notesnook.com";
     license = lib.licenses.gpl3Only;
-    maintainers = with lib.maintainers; [
-      keysmashes
-    ];
+    maintainers = [ ];
     platforms = [
       "x86_64-linux"
       "aarch64-linux"
@@ -67,6 +69,7 @@ let
       version
       src
       meta
+      passthru
       ;
 
     nativeBuildInputs = [ makeWrapper ];
@@ -91,6 +94,7 @@ let
       version
       src
       meta
+      passthru
       ;
 
     nativeBuildInputs = [ _7zz ];
