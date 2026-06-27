@@ -67,7 +67,7 @@
 
 stdenv.mkDerivation rec {
   pname = "vivaldi";
-  version = "8.0.4033.42";
+  version = "8.0.4033.50";
 
   suffix =
     {
@@ -80,8 +80,8 @@ stdenv.mkDerivation rec {
     url = "https://downloads.vivaldi.com/stable/vivaldi-stable_${version}-1_${suffix}.deb";
     hash =
       {
-        aarch64-linux = "sha256-qHIUVfD+rVIrBse5xsmJwVjCAszieAJzuHAC/oKzCHA=";
-        x86_64-linux = "sha256-abaU3PiUQNhpliCnmih96pkU6CgW/S1GgxFKFo8PBmo=";
+        aarch64-linux = "sha256-5n5+DY03lRDKLWX/WPX17Wg7IeTl4MDKEWOZEYHaPDE=";
+        x86_64-linux = "sha256-IVytlw5NzxV1TwLHeX81AgWEHHVzksVC3a0S/WuWEaA=";
       }
       .${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };

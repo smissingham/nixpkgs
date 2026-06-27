@@ -31,6 +31,8 @@
   codex,
   enableCursor ? false,
   code-cursor,
+  enableCursorCli ? false,
+  cursor-cli,
   enableGitHub ? true,
   gh,
   enableGit ? true,
@@ -39,6 +41,8 @@
   glab,
   enableJujutsu ? false,
   jujutsu,
+  enableOpencode ? false,
+  opencode,
 }:
 
 stdenv.mkDerivation (
@@ -52,6 +56,7 @@ stdenv.mkDerivation (
         "assets/prod/black-macos-1024.png"
       else
         "assets/prod/black-universal-1024.png";
+
     runtimePackages =
       lib.optionals enableAzureDevOps [
         azure-cli.withExtensions
@@ -61,10 +66,13 @@ stdenv.mkDerivation (
       ++ lib.optionals enableClaude [ claude-code ]
       ++ lib.optionals enableCodex [ codex ]
       ++ lib.optionals enableCursor [ code-cursor ]
+      ++ lib.optionals enableCursorCli [ cursor-cli ]
       ++ lib.optionals enableGitHub [ gh ]
       ++ lib.optionals enableGit [ git ]
       ++ lib.optionals enableGitLab [ glab ]
-      ++ lib.optionals enableJujutsu [ jujutsu ];
+      ++ lib.optionals enableJujutsu [ jujutsu ]
+      ++ lib.optionals enableOpencode [ opencode ];
+
     runtimePathWrapperArgs = lib.optionalString (runtimePackages != [ ]) ''
       \
         --prefix PATH : ${lib.makeBinPath runtimePackages}
@@ -72,7 +80,7 @@ stdenv.mkDerivation (
   in
   {
     pname = "t3code";
-    version = "0.0.25";
+    version = "0.0.27";
     strictDeps = true;
     __structuredAttrs = true;
 
@@ -80,7 +88,7 @@ stdenv.mkDerivation (
       owner = "pingdotgg";
       repo = "t3code";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-R9FTqKT67POU9dED/EdPJVsu/rSEQ2C4WoNUwgkL0e8=";
+      hash = "sha256-KwiF6A7pTlkzr43FJ9XM+oEXBOEtw3vrazVOjBaD5lU=";
     };
 
     postPatch = ''
@@ -128,7 +136,7 @@ stdenv.mkDerivation (
         ;
 
       fetcherVersion = 4;
-      hash = "sha256-gctAlOtQMAbw4xWH9QyyVae6f0fk+o+EkLW+4rpmF9c=";
+      hash = "sha256-vpL0kjDAtxnBpm+izcJ06KXuzX888yxmzrcEc9yKtm0=";
     };
 
     # This workaround turns the `pnpmWorkspaces` array into a space-separated
@@ -181,7 +189,7 @@ stdenv.mkDerivation (
 
       find "$out"/libexec/t3code -xtype l -delete
 
-      makeWrapper ${lib.getExe nodejs} "$out"/bin/t3code \
+      makeWrapper ${lib.getExe nodejs} "$out"/bin/t3 \
         --add-flags "$out"/libexec/t3code/apps/server/dist/bin.mjs ${runtimePathWrapperArgs}
 
       makeWrapper ${lib.getExe electron} "$out"/bin/t3code-desktop \
@@ -212,7 +220,7 @@ stdenv.mkDerivation (
 
     postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
       for shell in bash fish zsh; do
-        installShellCompletion --cmd t3code --"$shell" <("$out/bin/t3code" --completions "$shell")
+        installShellCompletion --cmd t3 --"$shell" <("$out/bin/t3" --completions "$shell")
       done
     '';
 

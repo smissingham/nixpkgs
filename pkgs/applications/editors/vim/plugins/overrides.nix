@@ -37,6 +37,7 @@
   nodejs,
   openscad,
   openssh,
+  openssl,
   ranger,
   ripgrep,
   sqlite,
@@ -54,7 +55,6 @@
   xwininfo,
   xxd,
   ycmd,
-  zathura,
   zenity,
   zoxide,
   zsh,
@@ -1014,6 +1014,13 @@ assertNoAdditions {
 
   copilot-cmp = super.copilot-cmp.overrideAttrs {
     dependencies = [ self.copilot-lua ];
+    patches = [
+      (fetchpatch {
+        name = "fix-deprecated-function-call.patch";
+        url = "https://github.com/zbirenbaum/copilot-cmp/commit/06430ebf99834ebc5d86c63816e409f4cb51fe79.patch";
+        sha256 = "sha256-YOJPFC+qbyURFU58tAiAqbamQLmi7ovnJGkOeOTUPH0=";
+      })
+    ];
   };
 
   copilot-lualine = super.copilot-lualine.overrideAttrs {
@@ -1523,6 +1530,12 @@ assertNoAdditions {
         --replace-fail \
         'local gpgme_library_path = "gpgme"' \
         'local gpgme_library_path = "${lib.getLib gpgme}/lib/libgpgme${stdenv.hostPlatform.extensions.sharedLibrary}"'
+
+      # Upstream typo: pendulum was moved to fugit2.util but this require was not updated
+      substituteInPlace lua/fugit2/view/git_blame_file.lua \
+        --replace-fail \
+        'require "fugit2.core.pendulum"' \
+        'require "fugit2.util.pendulum"'
     '';
   };
 
@@ -1643,7 +1656,8 @@ assertNoAdditions {
     ];
     checkInputs = with self; [
       luasnip
-      null-ls-nvim
+      none-ls-nvim
+      plenary-nvim
     ];
     nvimSkipModules = [
       "init"
@@ -1999,18 +2013,13 @@ assertNoAdditions {
     let
       kulala-http-grammar = neovimUtils.grammarToPlugin (
         tree-sitter.buildGrammar {
-          inherit (old) version src meta;
           language = "kulala_http";
-          location = "lua/tree-sitter";
+          inherit (luaPackages.tree-sitter-kulala_http) version src meta;
           generate = false;
         }
       );
     in
     {
-      patches = (old.patches or [ ]) ++ [
-        ./patches/kulala-nvim/use-packaged-tree-sitter-parser.patch
-      ];
-
       dependencies = [ kulala-http-grammar ];
 
       postPatch = ''
@@ -2023,6 +2032,7 @@ assertNoAdditions {
         "cli.kulala_cli"
         # Upstream test harnesses are not require-safe modules
         "minit"
+        "minit-userscript"
         "minitest"
         "test"
         # Legacy parser module; active parsing is handled by kulala-core
@@ -2308,6 +2318,17 @@ assertNoAdditions {
     };
   });
 
+  live-share-nvim = super.live-share-nvim.overrideAttrs {
+    # Loading the system libcrypto aborts the process on darwin,
+    # point the FFI loader at the nixpkgs openssl instead
+    postPatch = ''
+      substituteInPlace lua/live-share/collab/crypto.lua \
+        --replace-fail \
+        '"crypto",' \
+        '"${lib.getLib openssl}/lib/libcrypto${stdenv.hostPlatform.extensions.sharedLibrary}",'
+    '';
+  };
+
   lsp-format-modifications-nvim = super.lsp-format-modifications-nvim.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
   };
@@ -2457,7 +2478,8 @@ assertNoAdditions {
   mason-null-ls-nvim = super.mason-null-ls-nvim.overrideAttrs {
     dependencies = with self; [
       mason-nvim
-      null-ls-nvim
+      none-ls-nvim
+      plenary-nvim
     ];
   };
 
@@ -3070,13 +3092,6 @@ assertNoAdditions {
     dependencies = [ self.aniseed ];
   };
 
-  null-ls-nvim = super.null-ls-nvim.overrideAttrs (old: {
-    dependencies = [ self.plenary-nvim ];
-    meta = old.meta // {
-      license = lib.licenses.unlicense;
-    };
-  });
-
   nvchad = super.nvchad.overrideAttrs {
     # You've signed up for a distro, providing dependencies.
     dependencies = with self; [
@@ -3657,11 +3672,6 @@ assertNoAdditions {
       openscad
     ];
 
-    buildInputs = [
-      zathura
-      openscad
-    ];
-
     # FIXME: can't find plugin root dir
     nvimSkipModules = [
       "openscad"
@@ -3716,6 +3726,10 @@ assertNoAdditions {
 
   package-info-nvim = super.package-info-nvim.overrideAttrs {
     dependencies = [ self.nui-nvim ];
+  };
+
+  pantran-nvim = super.pantran-nvim.overrideAttrs {
+    runtimeDeps = [ curl ];
   };
 
   parpar-nvim = super.parpar-nvim.overrideAttrs {
@@ -4069,6 +4083,20 @@ assertNoAdditions {
       license = lib.licenses.mit;
     };
   });
+
+  slimline-nvim = super.slimline-nvim.overrideAttrs {
+    nvimSkipModules = [
+      # Component modules read the user-supplied slimline.config at require time.
+      "slimline.components.diagnostics"
+      "slimline.components.filetype_lsp"
+      "slimline.components.mode"
+      "slimline.components.path"
+      "slimline.components.progress"
+      "slimline.components.recording"
+      "slimline.components.searchcount"
+      "slimline.components.selectioncount"
+    ];
+  };
 
   smart-open-nvim = super.smart-open-nvim.overrideAttrs {
     dependencies = with self; [
@@ -4609,17 +4637,6 @@ assertNoAdditions {
     runtimeDeps = [ television ];
   };
 
-  typescript-nvim = super.typescript-nvim.overrideAttrs {
-    checkInputs = [
-      # Optional null-ls integration
-      self.none-ls-nvim
-    ];
-    dependencies = with self; [
-      nvim-lspconfig
-      plenary-nvim
-    ];
-  };
-
   typescript-tools-nvim = super.typescript-tools-nvim.overrideAttrs {
     dependencies = with self; [
       nvim-lspconfig
@@ -4686,8 +4703,8 @@ assertNoAdditions {
   });
 
   vCoolor-vim = super.vCoolor-vim.overrideAttrs (old: {
-    # on linux can use either Zenity or Yad.
-    propagatedBuildInputs = [ zenity ];
+    # on linux can use either Zenity or Yad, on darwin it uses AppleScript
+    propagatedBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [ zenity ];
     meta = old.meta // {
       description = "Simple color selector/picker plugin";
       license = lib.licenses.publicDomain;

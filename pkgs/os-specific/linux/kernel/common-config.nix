@@ -796,6 +796,10 @@ let
       DEVTMPFS = yes;
 
       UNICODE = yes; # Casefolding support for filesystems
+    }
+    // lib.optionalAttrs stdenv.hostPlatform.isPower {
+      # Needed to use the installation iso image formatted for tbxi booting (ISO9660 w/ hybrid HFS+ partition).
+      HFSPLUS_FS = yes;
     };
 
     security = {
@@ -1130,7 +1134,7 @@ let
         useZstd = stdenv.buildPlatform.is64bit;
       in
       {
-        # stdenv.hostPlatform.linux-kernel.target assumes uncompressed on RISC-V.
+        # The default target assumes uncompressed on RISC-V.
         KERNEL_UNCOMPRESSED = lib.mkIf stdenv.hostPlatform.isRiscV yes;
 
         KERNEL_XZ = lib.mkIf (
@@ -1416,13 +1420,10 @@ let
         DRM_AMDGPU_USERPTR = yes;
 
         # We want to prefer PREEMPT_LAZY when available, and fall back on PREEMPT_VOLUNTARY.
-        # It just so happens that kconfig asks for PREEMPT_LAZY first, so doing it like this
-        # does what we want.
-        # FIXME: This is stupid and bad.
-        # See: https://github.com/torvalds/linux/commit/7dadeaa6e851e7d67733f3e24fc53ee107781d0f
+        # The version cutoff is arbitrary, the real cutoff is somewhere around 6.13 depending on target.
         PREEMPT = no;
-        PREEMPT_LAZY = option yes;
-        PREEMPT_VOLUNTARY = option yes;
+        PREEMPT_LAZY = whenAtLeast "6.18" yes;
+        PREEMPT_VOLUNTARY = whenOlder "6.18" yes;
 
         X86_AMD_PLATFORM_DEVICE = lib.mkIf stdenv.hostPlatform.isx86 yes;
         X86_PLATFORM_DRIVERS_DELL = lib.mkIf stdenv.hostPlatform.isx86 (whenAtLeast "5.12" yes);
@@ -1623,6 +1624,12 @@ let
         # > round to working out why.  The workaround is to build it in[…].
         # > (It won't do any harm on non-Mac systems.)
         I2C_POWERMAC = yes;
+      }
+      // lib.optionalAttrs stdenv.hostPlatform.isPower {
+        # Needed for booting PowerMacs from disc
+        # (the only nice way that doesn't involve messing around with internal drives or in Open Firmware)
+        ATA = yes;
+        PATA_MACIO = yes;
       };
 
     accel = {

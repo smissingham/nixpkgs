@@ -27,7 +27,6 @@ NIXOS_DIR = Path(
 TIMEOUT = "@timeout@"
 EDITOR = "@editor@" == "1"  # noqa: PLR0133
 CONSOLE_MODE = "@consoleMode@"
-BOOTSPEC_TOOLS = "@bootspecTools@"
 DISTRO_NAME = "@distroName@"
 NIX = "@nix@"
 SYSTEMD = "@systemd@"
@@ -46,6 +45,7 @@ BOOT_COUNTING = "@bootCounting@" == "True"
 class BootSpec:
     init: Path
     initrd: Path
+    extraInitrdPaths: list[Path]
     kernel: Path
     kernelParams: list[str]  # noqa: N815
     label: str
@@ -291,31 +291,24 @@ def write_loader_conf(default_entry_id: str | None) -> None:
     os.rename(tmp, LOADER_CONF)
 
 
-def get_bootspec(profile: str | None, generation: int) -> BootSpec:
+def get_bootspec(profile: str | None, generation: int) -> BootSpec | None:
     system_directory = system_dir(profile, generation, None)
     boot_json_path = (system_directory / "boot.json").resolve()
-    if boot_json_path.is_file():
-        with boot_json_path.open("r") as f:
-            # check if json is well-formed, else throw error with filepath
-            try:
-                bootspec_json = json.load(f)
-            except ValueError as e:
-                print(
-                    f"error: Malformed Json: {e}, in {boot_json_path}", file=sys.stderr
-                )
-                sys.exit(1)
-    else:
-        boot_json_str = run(
-            [
-                f"{BOOTSPEC_TOOLS}/bin/synthesize",
-                "--version",
-                "1",
-                system_directory,
-                "/dev/stdout",
-            ],
-            stdout=subprocess.PIPE,
-        ).stdout
-        bootspec_json = json.loads(boot_json_str)
+    if not boot_json_path.is_file():
+        print(
+            f"warning: skipping generation {generation}"
+            + (f" of profile {profile}" if profile else "")
+            + f": {boot_json_path} does not exist",
+            file=sys.stderr,
+        )
+        return None
+    with boot_json_path.open("r") as f:
+        # check if json is well-formed, else throw error with filepath
+        try:
+            bootspec_json = json.load(f)
+        except ValueError as e:
+            print(f"error: Malformed Json: {e}, in {boot_json_path}", file=sys.stderr)
+            sys.exit(1)
     return bootspec_from_json(bootspec_json)
 
 
@@ -325,6 +318,11 @@ def bootspec_from_json(bootspec_json: dict[str, Any]) -> BootSpec:
     systemdBootExtension = bootspec_json.get("org.nixos.systemd-boot", {})
     sortKey = systemdBootExtension.get("sortKey", "nixos")
     devicetree = systemdBootExtension.get("devicetree")
+
+    extraInitrdExtension = bootspec_json.get("org.nixos.extra-initrd.v1", {})
+    extraInitrdPaths = list(
+        map(lambda path: Path(path), extraInitrdExtension.get("paths", []))
+    )
 
     if devicetree:
         devicetree = Path(devicetree)
@@ -338,6 +336,7 @@ def bootspec_from_json(bootspec_json: dict[str, Any]) -> BootSpec:
         specialisations=specialisations,
         sortKey=sortKey,
         devicetree=devicetree,
+        extraInitrdPaths=extraInitrdPaths,
     )
 
 
@@ -380,16 +379,21 @@ def boot_file(
         specialisation=" (%s)" % specialisation if specialisation else "",
     )
     description = f"Generation {generation} {bootspec.label}, built on {build_date}"
-    boot_entry = [
-        f"title {title}",
-        f"version {description}",
-        f"linux /{str(kernel.path)}",
-        f"initrd /{str(initrd.path)}",
-        f"options {kernel_params}",
-        f"machine-id {machine_id}" if machine_id is not None else None,
-        f"devicetree /{str(devicetree.path)}" if devicetree is not None else None,
-        f"sort-key {bootspec.sortKey}",
-    ]
+    boot_entry = (
+        [
+            f"title {title}",
+            f"version {description}",
+            f"linux /{str(kernel.path)}",
+            f"initrd /{str(initrd.path)}",
+        ]
+        + list(map(lambda initrd: f"initrd /{initrd}", bootspec.extraInitrdPaths))
+        + [
+            f"options {kernel_params}",
+            f"machine-id {machine_id}" if machine_id is not None else None,
+            f"devicetree /{str(devicetree.path)}" if devicetree is not None else None,
+            f"sort-key {bootspec.sortKey}",
+        ]
+    )
     contents = "\n".join(filter(None, boot_entry))
     entry, bootctl_id = BootFile.from_entry(contents.encode("utf-8"))
     return (list(filter(None, [kernel, initrd, devicetree, entry])), bootctl_id)
@@ -551,6 +555,8 @@ def install_bootloader(args: argparse.Namespace) -> None:
 
     for gen in gens:
         bootspec = get_bootspec(gen.profile, gen.generation)
+        if bootspec is None:
+            continue
         is_default = Path(bootspec.init).parent == default_config
         new_boot_files, new_bootctl_id = boot_file(*gen, machine_id, bootspec)
         boot_files.extend(new_boot_files)

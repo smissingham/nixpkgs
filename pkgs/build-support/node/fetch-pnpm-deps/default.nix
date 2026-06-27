@@ -49,25 +49,9 @@ in
 
       filterFlags = lib.map (package: "--filter=${package}") pnpmWorkspaces;
 
-      pnpm-fixup-state-db' =
-        if pnpm.nodejs-slim or null != null then
-          pnpm-fixup-state-db.override {
-            # FIXME: make npm-config-hook accept nodejs-slim
-            nodejs =
-              let
-                inherit (pnpm) nodejs-slim;
-              in
-              if nodejs-slim ? paths && builtins.isList nodejs-slim.paths then
-                # If nodejs-slim has a list `paths` attribute, it's likely a simlinkJoin
-                nodejs-slim
-              else
-                # Otherwise we need to recreate one by overriding the default one
-                pnpm-fixup-state-db.nodejs.override {
-                  inherit nodejs-slim;
-                };
-          }
-        else
-          pnpm-fixup-state-db;
+      pnpm-fixup-state-db' = pnpm-fixup-state-db.override {
+        inherit (pnpm) nodejs-slim;
+      };
     in
     assert
       fetcherVersion != null
@@ -221,10 +205,7 @@ in
 
           passthru = args.passthru or { } // {
             inherit fetcherVersion;
-            serve = callPackage ./serve.nix {
-              inherit pnpm; # from args
-              pnpmDeps = finalAttrs.finalPackage;
-            };
+            serve = throw "fetchPnpmDeps: `serve` has been deprecated as it was removed in pnpm 11 and only had a niche use case."; # Added 2026-06-04
           };
 
           dontConfigure = true;

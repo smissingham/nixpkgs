@@ -265,7 +265,7 @@ let
   extraBuildInputs = extraPackages python3Packages;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2026.6.1";
+  hassVersion = "2026.6.4";
 
 in
 python3Packages.buildPythonApplication rec {
@@ -286,13 +286,13 @@ python3Packages.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-gjXhWv64Uu3LHwxDR8HwsTFeAncgY94JeOqfKEnvgJ8=";
+    hash = "sha256-NeqJT2CW8A0VfUJ2yrR+KGmmQMK8q0Wdag43rUBBoWU=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-gtnIsOrJWyLhjEc9dstvRiVd4LrqJ6W48qXNwaV8YlU=";
+    hash = "sha256-7Y26vN0oskJBgijtm9RZcvHw/xBEH3IsI8hezgsOVr0=";
   };
 
   build-system = with python3Packages; [
@@ -324,6 +324,9 @@ python3Packages.buildPythonApplication rec {
     (replaceVars ./patches/ffmpeg-path.patch {
       ffmpeg = "${lib.getExe ffmpeg-headless}";
     })
+
+    # https://github.com/home-assistant/core/pull/172893
+    ./patches/pyjwt-2.13-compat.patch
   ];
 
   postPatch = ''

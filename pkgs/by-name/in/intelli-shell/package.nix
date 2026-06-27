@@ -11,16 +11,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "intelli-shell";
-  version = "3.4.2";
+  version = "3.4.4";
 
   src = fetchFromGitHub {
     owner = "lasantosr";
     repo = "intelli-shell";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-p0o1KFNo+gR/eTaYGd3HkE1Ndwt8mqQOz0gHzM8lnBk=";
+    hash = "sha256-/DkR2s6xHXhQxwJEEs4vXK7Zc4lwLQvBnqUqW75h0Do=";
   };
 
-  cargoHash = "sha256-xJ2hjv3JlzMcnjoTAzuXA8Hongb9gfuXxnWFBQkffOc=";
+  cargoHash = "sha256-9/ZxPYgkETIKRizrlz+Pb9oWUYEeoSSmGk8EjzQO7PY=";
 
   nativeBuildInputs = [
     pkg-config
