@@ -1,5 +1,6 @@
 {
   cargo,
+  darwin,
   fetchFromGitHub,
   fetchurl,
   fixDarwinDylibNames,
@@ -51,13 +52,18 @@ let
       ninja
       pkg-config
       (buildPackages.python3.withPackages (ps: [ ps.pyyaml ]))
-    ];
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.sigtool ];
 
     mesonFlags = [
       (lib.mesonBool "render-server" false)
       (lib.mesonBool "venus" true)
       (lib.mesonEnable "drm" false)
     ];
+
+    postFixup = lib.optionalString stdenv.hostPlatform.isDarwin ''
+      find $out/lib -type f -name '*.dylib' -exec codesign --force -s - {} \;
+    '';
 
     meta = {
       description = "Virtual 3D GPU library that allows a qemu guest to use the host GPU for accelerated 3D rendering";
@@ -110,7 +116,8 @@ stdenv.mkDerivation (finalAttrs: {
     rustc
     rustPlatform.bindgenHook
     rustPlatform.cargoSetupHook
-  ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.sigtool ];
 
   buildInputs = [
     libepoxy
@@ -134,6 +141,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   postInstall = ''
     ln -s $out/lib/libkrun-efi.dylib $out/lib/libkrun.dylib
+  '';
+
+  postFixup = lib.optionalString stdenv.hostPlatform.isDarwin ''
+    find $out/lib -type f -name '*.dylib' -exec codesign --force -s - {} \;
   '';
 
   passthru = {
