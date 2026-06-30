@@ -10,13 +10,23 @@
   libiconv,
   libkrun,
   libkrun-efi,
+  libkrunfw,
   makeWrapper,
   rustc,
   sigtool,
 }:
 
 let
-  libkrun' = if stdenv.hostPlatform.isDarwin then libkrun-efi else libkrun;
+  libkrun' =
+    if stdenv.hostPlatform.isDarwin then
+      libkrun.override {
+        withBlk = true;
+        withNet = true;
+        withGpu = false;
+        withTimesync = true;
+      }
+    else
+      libkrun;
 in
 stdenv.mkDerivation rec {
   pname = "krunvm";
@@ -77,6 +87,7 @@ stdenv.mkDerivation rec {
   postFixup = ''
     wrapProgram $out/bin/krunvm \
       --prefix PATH : ${lib.makeBinPath [ buildah ]} \
+      --prefix DYLD_LIBRARY_PATH : ${lib.makeLibraryPath [ libkrunfw ]} \
       ${lib.optionalString stdenv.hostPlatform.isDarwin "--set STORAGE_DRIVER vfs"}
   '';
 

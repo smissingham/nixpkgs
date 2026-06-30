@@ -24,19 +24,27 @@ let
     url = "mirror://kernel/linux/kernel/v6.x/linux-6.12.91.tar.xz";
     hash = "sha256-D/KrnhafnxlIVXRx+7RQ0wGPjFt3yvKI4aOYJYJZeWk=";
   };
+  darwinSrc = fetchurl {
+    url = "https://github.com/containers/libkrunfw/releases/download/v5.5.0/libkrunfw-prebuilt-aarch64.tgz";
+    hash = "sha256-W/rm7+5j298EqPrCpp13LZ+QCvL1TEQptKzf1thrmXk=";
+  };
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "libkrunfw" + lib.optionalString (variant != null) "-${variant}";
   version = "5.5.0";
 
-  src = fetchFromGitHub {
-    owner = "libkrun";
-    repo = "libkrunfw";
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-MF1oDqhS4xqyQJIntl4DBfDBvuqCxQn9Zdws82Tn5Gg=";
-  };
+  src =
+    if stdenv.hostPlatform.isDarwin then
+      darwinSrc
+    else
+      fetchFromGitHub {
+        owner = "libkrun";
+        repo = "libkrunfw";
+        tag = "v${finalAttrs.version}";
+        hash = "sha256-MF1oDqhS4xqyQJIntl4DBfDBvuqCxQn9Zdws82Tn5Gg=";
+      };
 
-  postPatch = ''
+  postPatch = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
     substituteInPlace Makefile \
       --replace-fail 'curl $(KERNEL_REMOTE) -o $(KERNEL_TARBALL)' 'ln -s ${kernelSrc} $(KERNEL_TARBALL)'
   '';
@@ -51,7 +59,7 @@ stdenv.mkDerivation (finalAttrs: {
     python3.pkgs.pyelftools
   ];
 
-  buildInputs = [
+  buildInputs = lib.optionals (!stdenv.hostPlatform.isDarwin) [
     elfutils
   ];
 
@@ -90,6 +98,9 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optionals (variant == null) [
       "aarch64-linux"
       "riscv64-linux"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.isDarwin && variant == null) [
+      "aarch64-darwin"
     ];
   };
 })
